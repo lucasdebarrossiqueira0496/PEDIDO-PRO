@@ -1,0 +1,4989 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PEDIDO PRO</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffcc00">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pedido Pro">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#fff7d1;
+font-size:18px;
+}
+
+header{
+background:#ffcc00;
+color:#b30000;
+padding:20px;
+text-align:center;
+font-size:26px;
+font-weight:bold;
+}
+
+.container{
+padding:15px;
+padding-bottom:60px;
+}
+
+button{
+padding:18px;
+margin:8px 0;
+width:100%;
+border:none;
+background:#b30000;
+color:white;
+font-weight:bold;
+font-size:18px;
+border-radius:10px;
+}
+
+button.secundario{
+background:#666;
+}
+
+button.pequeno{
+width:auto;
+padding:8px 14px;
+font-size:15px;
+margin:4px 4px 4px 0;
+border-radius:8px;
+}
+
+button.excluir{
+background:#8a1111;
+}
+
+button.editar{
+background:#c88b00;
+}
+
+input,select,textarea{
+width:100%;
+padding:15px;
+margin:8px 0;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:18px;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+textarea{
+resize:vertical;
+min-height:80px;
+}
+
+h2, h3{
+font-size:22px;
+}
+
+h4{
+font-size:18px;
+color:#b30000;
+margin:14px 0 4px 0;
+}
+
+.card{
+background:#fff;
+padding:15px;
+margin:12px 0;
+border-left:6px solid #ffcc00;
+border-radius:10px;
+font-size:18px;
+}
+
+.total{
+background:#fff;
+padding:15px;
+border-left:6px solid #b30000;
+margin-top:12px;
+font-size:18px;
+}
+
+.resultado{
+background:#fff;
+padding:15px;
+border-left:6px solid #007a33;
+margin-top:12px;
+font-size:18px;
+}
+
+.historico{
+display:flex;
+gap:10px;
+margin-top:10px;
+overflow-x:auto;
+}
+
+.historico-card{
+min-width:200px;
+background:#fff;
+padding:15px;
+border-left:6px solid #ffcc00;
+border-radius:10px;
+font-size:16px;
+}
+
+.chips{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+margin:10px 0;
+}
+
+.chip{
+background:#fff;
+border:2px solid #ffcc00;
+color:#b30000;
+padding:8px 14px;
+border-radius:20px;
+font-size:14px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.hidden{display:none;}
+
+#leitorOverlay{
+position:fixed;
+top:0;left:0;right:0;bottom:0;
+background:#000;
+z-index:9999;
+display:flex;
+flex-direction:column;
+}
+#leitorOverlay.hidden{display:none;}
+
+.aviso{
+background:#fff3cd;
+border-left:6px solid #ffcc00;
+padding:15px;
+border-radius:10px;
+margin:12px 0;
+font-size:16px;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:8px;
+}
+.topbar button{width:auto;padding:10px 16px;}
+
+hr{
+border:none;
+border-top:2px dashed #ffcc00;
+margin:16px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>PEDIDO PRO</header>
+
+<div class="container">
+
+<!-- ===================== TELA DE SENHA ===================== -->
+<div id="telaSenha" class="hidden">
+<h2>Acesso Restrito</h2>
+<div class="aviso">Digite a senha pra entrar no PEDIDO PRO.</div>
+<div style="display:flex;gap:8px;align-items:stretch;">
+<input type="password" id="senhaAppInput" placeholder="Senha" style="flex:1;" onkeydown="if(event.key==='Enter') verificarSenhaApp()">
+<button id="btnMostrarSenha" class="secundario" style="width:auto;padding:0 16px;display:flex;align-items:center;justify-content:center;" onclick="alternarVisibilidadeSenha()">
+<svg id="iconeOlhoAberto" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+<svg id="iconeOlhoFechado" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+</button>
+</div>
+<button onclick="verificarSenhaApp()">Entrar</button>
+</div>
+
+<!-- ===================== LOGIN / USUÁRIO ===================== -->
+<div id="login">
+<h2>Bem-vindo</h2>
+<div class="aviso">Cada vendedor tem seus próprios dados (redes, pedidos, trocas etc), separados dos outros. Máximo de 3 usuários no aparelho.</div>
+
+<div id="listaUsuariosLogin"></div>
+
+<div id="novoUsuarioForm">
+<h4>Novo cadastro</h4>
+<input id="novoUsuarioNome" placeholder="Nome do vendedor">
+<input id="novoUsuarioSvn" placeholder="SVN">
+<button onclick="cadastrarUsuario()">Salvar e Entrar</button>
+</div>
+
+<div id="avisoLimiteUsuarios" class="aviso hidden">⚠️ Limite de 3 usuários atingido. Remova um usuário existente pra poder cadastrar outro.</div>
+</div>
+
+<div id="menu" class="hidden">
+<div class="card" id="usuarioAtivoInfo"></div>
+
+<button onclick="show('redes')">📋 CADASTRO DE REDE</button>
+<button onclick="show('lojas')">🏬 CADASTRO DE LOJA</button>
+<button onclick="show('produtos')">📦 CADASTRO DE PRODUTOS</button>
+<button onclick="renderPedidoMenu()">🧾 PEDIDO REDE - VALORES / BONIFICAÇÃO</button>
+<button onclick="renderVolumeMenu()">📦 SIMULADOR DE CARGA</button>
+<button onclick="show('trocaMenu')">🔄 RELATÓRIO DE TROCA</button>
+<button onclick="renderOcorrenciaMenu()">⚠️ OCORRÊNCIA</button>
+<button onclick="show('agenda')">📅 AGENDA</button>
+<button onclick="renderDemandasMenu()">📌 DEMANDAS</button>
+<button class="secundario" onclick="mostrarTelaLogin()">👤 TROCAR DE USUÁRIO</button>
+<button onclick="show('backup')">💾 BACKUP / RESTAURAR</button>
+</div>
+
+<!-- ===================== BACKUP / RESTAURAR ===================== -->
+<div id="backup" class="hidden">
+<h2>Backup / Restaurar</h2>
+
+<div class="aviso">Seus dados ficam salvos só neste navegador. Faça backup de vez em quando pra não correr risco de perder tudo (troca de celular, cache limpo, etc).</div>
+
+<h4>Exportar backup</h4>
+<button onclick="exportarBackup()">⬇️ Baixar Backup (.json)</button>
+
+<h4>Restaurar backup</h4>
+<div class="aviso">Atenção: restaurar um backup substitui todos os dados atuais do aplicativo.</div>
+<input type="file" id="arquivoBackup" accept=".json" onchange="importarBackup(event)">
+
+<hr style="margin:30px 0;border:none;border-top:3px solid #b30000;">
+
+<div style="background:#b30000;color:#fff;padding:18px;border-radius:10px;margin-bottom:12px;">
+<div style="font-size:22px;font-weight:bold;margin-bottom:8px;">⚠️ ATENÇÃO ⚠️</div>
+<div style="font-size:16px;">O botão abaixo apaga redes, lojas, pedidos, trocas, demandas, ocorrências, simulados de carga e agenda. Essa ação não pode ser desfeita. Faça um backup antes, se não tiver certeza.</div>
+</div>
+<button class="secundario" onclick="resetarTudo()">🗑️ RESET (apagar tudo)</button>
+
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== CADASTRO DE REDE ===================== -->
+<div id="redes" class="hidden">
+<h2>Cadastro de Rede</h2>
+<input id="nomeCliente" placeholder="Nome da Rede">
+<button onclick="salvarCliente()">Salvar</button>
+<div id="listaClientesPainel"></div>
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== ORÇAMENTO DA REDE ===================== -->
+<div id="orcamentoRede" class="hidden">
+<h2>Orçamento da Rede</h2>
+<h3 id="orcamentoRedeNome"></h3>
+
+<input type="month" id="orcamentoMes">
+<input id="orcamentoValor" placeholder="Valor do orçamento (R$)" onblur="this.value=formatarMoeda(this.value)">
+<button onclick="salvarOrcamento()">Salvar Orçamento</button>
+
+<h4>Orçamentos cadastrados</h4>
+<div id="listaOrcamentosPainel"></div>
+
+<button onclick="show('redes')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== CADASTRO DE LOJA ===================== -->
+<div id="lojas" class="hidden">
+<h2>Cadastro de Loja</h2>
+
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+
+<div id="lojaSemRede" class="hidden">
+<div class="aviso">Nenhuma rede cadastrada ainda. Cadastre uma rede primeiro para poder vincular as lojas.</div>
+<button onclick="show('redes')">Cadastrar Rede</button>
+</div>
+
+<div id="lojaComRede" class="hidden">
+<select id="redeSelectLoja" onchange="onChangeRedeLoja()"></select>
+
+<div id="lojaSemRedeSelecionada" class="aviso hidden">Essa rede ainda não tem loja cadastrada. Preencha os dados abaixo para cadastrar a primeira loja.</div>
+
+<input id="lojaRazaoSocial" placeholder="Razão Social">
+<input id="lojaCnpj" placeholder="CNPJ">
+<input id="lojaCidade" placeholder="Cidade">
+<button onclick="salvarLoja()">Salvar</button>
+
+<h4>Lojas cadastradas nessa rede</h4>
+<div id="listaLojasPainel"></div>
+</div>
+
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== CADASTRO DE PRODUTOS E CATEGORIAS ===================== -->
+<div id="produtos" class="hidden">
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Cadastro de Produtos</h2>
+
+<h4>Categoria</h4>
+<select id="produtoGrupoSelect" onchange="onChangeProdutoGrupoSelect()"></select>
+<input id="novaCategoriaNome" class="hidden" placeholder="Nome da nova categoria">
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Quantidade que vem na Caixa</div>
+<input id="produtoQtdCaixa" inputmode="numeric">
+
+<button onclick="atualizarSoACategoria()">💾 Atualizar Só a Categoria (sem produto)</button>
+<button id="btnExcluirCategoria" class="secundario hidden" onclick="excluirCategoriaSelecionada()">❌ Excluir esta categoria</button>
+
+<button onclick="mostrarFormNovoProduto()">➕ Adicionar Novo Produto</button>
+
+<div id="formNovoProduto" class="hidden">
+<h4>Adicionar Produto Novo nessa Categoria</h4>
+<div class="aviso">Preencha o peso bruto, palete e m³ aqui quando esse produto específico for diferente do padrão da categoria (ex: formatos de massa que ocupam espaço diferente mesmo pesando igual).</div>
+
+<input id="produtoDescricao" placeholder="Descrição do Produto">
+<input id="produtoCodBarras" placeholder="Código de Barras">
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Peso Bruto da Caixa (KG) — deixe em branco pra usar o padrão da categoria</div>
+<input id="produtoKgCaixa" inputmode="decimal">
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Quantidade de Caixas por Palete — deixe em branco pra usar o padrão da categoria</div>
+<input id="produtoCaixasPorPalete" inputmode="numeric">
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Volume da Caixa (m³) — deixe em branco pra usar o padrão da categoria</div>
+<input id="produtoM3Caixa" inputmode="decimal">
+
+<button onclick="salvarProduto()">💾 Salvar Produto Novo</button>
+<button class="secundario" onclick="formNovoProduto.classList.add('hidden')">Cancelar</button>
+</div>
+
+<h4>Produtos dessa Categoria</h4>
+<div id="listaProdutosDaCategoria"></div>
+</div>
+
+<!-- ===================== NOVO PEDIDO - ORIGINAL, NÃO ALTERADO ===================== -->
+<div id="pedidoMenu" class="hidden">
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Pedido Rede — Valores / Bonificação</h2>
+<button onclick="show('novoPedido')">➕ Novo Pedido</button>
+
+<h4>Pedidos salvos por rede</h4>
+<div id="listaRedesPedido"></div>
+</div>
+
+<div id="novoPedido" class="hidden">
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+<select id="clienteSelect"></select>
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Selecione a Data do Pedido</div>
+<input type="date" id="dataPedido">
+<button onclick="iniciarPedido()">Continuar</button>
+<button onclick="show('pedidoMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="pedidoRedeSalvos" class="hidden">
+<button onclick="show('pedidoMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+<h3 id="pedidoRedeSalvosNome"></h3>
+<div id="listaPedidosRede"></div>
+</div>
+
+<div id="pedido" class="hidden">
+
+<h3 id="infoPedido"></h3>
+
+<select id="categoriaSelect" onchange="onChangeCategoriaPedido()"></select>
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Preço (uma vez por categoria)</div>
+<input id="valorUnit">
+
+<select id="produtoSelectPedido"></select>
+<input id="qtdCaixaPedido" placeholder="Caixas desse sabor">
+
+<button onclick="addItem()">➕ Adicionar</button>
+
+<div id="subtotalCategoriaAtual" style="background:#b30000;color:#fff;padding:20px;border-radius:12px;margin:15px 0;font-size:20px;font-weight:bold;text-align:center;"></div>
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">% de Bonificação dessa Categoria</div>
+<input id="bonificacao">
+
+<div class="card" id="calculos"></div>
+
+<h3>📊 Histórico da categoria</h3>
+<div id="historicoCategoria" class="historico"></div>
+
+<div id="itens"></div>
+
+<div class="total" id="totais"></div>
+<div class="total" id="totaisVolumePedido"></div>
+
+<h4>Encarte</h4>
+<input id="valorEncarte" placeholder="Valor de custo do encarte (R$)" oninput="render()" onblur="this.value=formatarMoeda(this.value);render()">
+
+<button onclick="abrirDivisaoCargaPedido()">🚛 Dividir Carga (Truck / Bitruck / Carreta)</button>
+<button onclick="gerarTexto()">📲 Gerar Texto</button>
+<button onclick="abrirPlanoNegocio()">📄 Plano de Negócio</button>
+<button onclick="salvarPedido()">Salvar</button>
+<button onclick="show('pedidoMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+</div>
+
+<!-- ===================== DIVISÃO DE CARGA DO PEDIDO ===================== -->
+<div id="divisaoCargaPedido" class="hidden">
+<button onclick="show('pedido')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Divisão de Carga do Pedido</h2>
+<div class="aviso" id="divisaoPedidoResumo"></div>
+<div id="divisaoPedidoLista"></div>
+</div>
+
+<!-- ===================== PLANO DE NEGÓCIO ===================== -->
+<div id="planoNegocio" class="hidden">
+<h2>Plano de Negócio</h2>
+
+<h4>Vendedor</h4>
+<div class="card" id="planoVendedorNome"></div>
+
+<h4>Cliente</h4>
+<input id="buscaLojaPlano" placeholder="🔎 Buscar loja por razão social, CNPJ ou cidade..." oninput="renderListaLojasPlano()">
+<div id="listaLojasPlano"></div>
+
+<input id="planoCliente" placeholder="Razão Social do cliente">
+<input id="planoCnpj" placeholder="CNPJ">
+<h4>Canal</h4>
+<select id="planoCanal">
+<option value="HIPER/SUPER">HIPER/SUPER</option>
+<option value="VAREJO">VAREJO</option>
+</select>
+
+<h4>Dados da Negociação</h4>
+<div class="card" id="planoOrcamentoInfo"></div>
+
+<input id="planoValorPedido" placeholder="Valor do Pedido (R$)" oninput="calcularExcedentePolitica()" onblur="this.value=formatarMoeda(this.value);calcularExcedentePolitica()">
+<input id="planoValorVerba" placeholder="Valor da Verba - bonificação + encarte (R$)" oninput="calcularExcedentePolitica()" onblur="this.value=formatarMoeda(this.value);calcularExcedentePolitica()">
+
+<div class="resultado" id="planoResultadoPercentuais"></div>
+
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Percentual de Política (%)</div>
+<input id="planoPercentualPolitica" oninput="calcularExcedentePolitica()">
+
+<h4>Contrato + Rede</h4>
+<select id="planoContratoRede">
+<option value="Não possui">Não possui</option>
+<option value="Possui">Possui</option>
+</select>
+
+<h4>JBP</h4>
+<select id="planoJbp">
+<option value="Não">Não</option>
+<option value="Sim">Sim</option>
+</select>
+
+<h4>Área</h4>
+<select id="planoArea" onchange="onChangePlanoArea()">
+<option value="Manutenção/Ataque">Manutenção/Ataque</option>
+<option value="Varejo">Varejo</option>
+<option value="__OUTRA__">➕ Outra (digitar)</option>
+</select>
+<input id="planoAreaPersonalizada" class="hidden" placeholder="Digite a área">
+
+<h4>Motivo da Ação</h4>
+<textarea id="planoMotivo" placeholder="Descreva o motivo da ação..."></textarea>
+
+<h4>Contrapartida</h4>
+<textarea id="planoContrapartida" placeholder="Uma contrapartida por linha..."></textarea>
+
+<button onclick="gerarTextoPlano()">📲 Gerar Texto</button>
+<button onclick="gerarPdfPlano()">📄 Gerar PDF</button>
+<button onclick="salvarPedido()">💾 Salvar Pedido</button>
+<button onclick="show('pedido')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar ao Pedido</button>
+</div>
+
+<!-- ===================== RELATÓRIO DE TROCA ===================== -->
+
+<div id="trocaMenu" class="hidden">
+<h2>Relatório de Troca</h2>
+<button onclick="iniciarTroca()">➕ Novo Relatório de Troca</button>
+<h4>Relatórios salvos</h4>
+<div id="listaTrocasSalvas"></div>
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="trocaSetup" class="hidden">
+<h2>Novo Relatório de Troca</h2>
+
+<div style="display:flex;gap:8px;">
+<button class="secundario pequeno" style="width:auto;flex:1;" onclick="show('redes')">➕ Nova Rede</button>
+<button class="secundario pequeno" style="width:auto;flex:1;" onclick="show('lojas')">➕ Nova Loja</button>
+</div>
+
+<h4>1. Selecione a Rede</h4>
+<select id="redeSelectTroca" onchange="onChangeRedeTroca()"></select>
+
+<div id="trocaSemLoja" class="aviso hidden">
+Essa rede ainda não tem loja cadastrada.
+<button onclick="show('lojas')">Cadastrar Loja</button>
+</div>
+
+<div id="trocaComLoja" class="hidden">
+<h4>2. Busque o mercado (Razão Social, CNPJ ou Cidade)</h4>
+<input id="buscaLojaTroca" placeholder="🔎 Buscar loja..." oninput="renderLojasTroca()">
+<div id="listaLojasTroca"></div>
+
+<div id="historicoLojaTroca"></div>
+
+<h4>3. Data da troca</h4>
+<input type="date" id="dataTroca">
+
+<button onclick="confirmarTrocaSetup()">Continuar</button>
+</div>
+
+<button onclick="show('trocaMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="trocaItens" class="hidden">
+<h3 id="infoTroca"></h3>
+
+<button onclick="abrirLeitorCodigoBarras()">📷 Ler Código de Barras</button>
+
+<select id="grupoTrocaSelect" onchange="onChangeGrupoTroca()"></select>
+<select id="produtoTrocaSelect"></select>
+
+<input id="trocaQtd" placeholder="Quantidade">
+<input id="trocaValorTotal" placeholder="Valor total da troca (R$)" onblur="this.value=formatarMoeda(this.value)">
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Data de Vencimento ou Avaria do Produto</div>
+<input type="date" id="trocaValidade">
+<input id="trocaLote" placeholder="Lote do produto">
+<select id="trocaMotivo">
+<option value="">Motivo...</option>
+<option value="Avaria">Avaria</option>
+<option value="Vencimento">Vencimento</option>
+</select>
+
+<button onclick="addItemTroca()">Adicionar Item</button>
+
+<div id="itensTrocaLista"></div>
+<div class="total" id="totaisTroca"></div>
+
+<button onclick="irParaFinalizarTroca()">Continuar</button>
+<button onclick="show('trocaMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Cancelar</button>
+</div>
+
+<div id="trocaFinal" class="hidden">
+<h3>Fechamento da Troca</h3>
+<div class="card" id="resumoItensTroca"></div>
+
+<input id="valorPedidoTroca" placeholder="Valor do último pedido realizado (R$)" oninput="calcularResultadoTroca()" onblur="this.value=formatarMoeda(this.value);calcularResultadoTroca()">
+
+<div class="resultado" id="resultadoTroca"></div>
+
+<h4>Observação</h4>
+<textarea id="observacaoTroca" placeholder="Observação referente a essa troca..."></textarea>
+
+<h4>Status</h4>
+<select id="trocaStatus">
+<option value="Em Andamento">🟡 Em Andamento</option>
+<option value="Nota Solicitada">🔵 Nota Solicitada</option>
+<option value="Nota Recebida - Não Enviada">🟠 Nota Recebida - Não Enviada</option>
+<option value="Nota Recebida - Enviada">🟢 Nota Recebida - Enviada</option>
+</select>
+
+<button onclick="salvarTroca()">💾 Salvar Relatório</button>
+<button onclick="gerarTextoTrocaAtual()">📲 Gerar Texto (WhatsApp)</button>
+<button onclick="gerarPdfTrocaAtual()">📄 Gerar PDF</button>
+<button onclick="show('trocaItens')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== DEMANDAS ===================== -->
+<div id="demandasMenu" class="hidden">
+<h2>Demandas</h2>
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+<div class="aviso">Selecione uma rede para ver ou registrar demandas/alinhamentos.</div>
+<div id="listaRedesDemandas"></div>
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="demandasRede" class="hidden">
+<h3 id="demandasRedeNome"></h3>
+<button onclick="novaDemanda()">➕ Nova Demanda</button>
+<div id="listaDemandas"></div>
+<button onclick="show('demandasMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="demandaForm" class="hidden">
+<h3 id="demandaFormTitulo"></h3>
+
+<h4>1. Categoria</h4>
+<select id="demandaCategoriaSelect" onchange="onChangeDemandaCategoria()"></select>
+<input id="demandaCategoriaPersonalizada" class="hidden" placeholder="Digite a categoria/tarefa personalizada">
+
+<h4>2. Ação para alinhar</h4>
+<textarea id="demandaAcaoAlinhar" placeholder="O que precisa ser alinhado com o cliente..."></textarea>
+
+<h4>3. Data Solicitada</h4>
+<input type="date" id="demandaDataSolicitada">
+
+<h4>4. Retorno</h4>
+<textarea id="demandaRetorno" placeholder="Como ficou o alinhamento com o cliente..."></textarea>
+
+<h4>5. Status</h4>
+<select id="demandaStatus">
+<option value="">Selecione...</option>
+<option value="Não Iniciado">⚪ Não Iniciado</option>
+<option value="Iniciado">🟡 Iniciado</option>
+<option value="Em Andamento">🔵 Em Andamento</option>
+<option value="Finalizado">🟢 Finalizado</option>
+</select>
+
+<h4>6. Ações para a próxima visita</h4>
+<textarea id="demandaProximaVisita" placeholder="O que vai ser alinhado na próxima visita..."></textarea>
+
+<button onclick="salvarDemanda()">💾 Salvar Demanda</button>
+<button onclick="show('demandasRede')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== OCORRÊNCIA ===================== -->
+<div id="ocorrenciaMenu" class="hidden">
+<h2>Ocorrência</h2>
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+<div class="aviso">Selecione uma rede para ver ou registrar ocorrências sobre o atendimento do promotor.</div>
+<div id="listaRedesOcorrencia"></div>
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="ocorrenciaRede" class="hidden">
+<h3 id="ocorrenciaRedeNome"></h3>
+<button onclick="novaOcorrencia()">➕ Nova Ocorrência</button>
+<div id="listaOcorrencias"></div>
+<button onclick="show('ocorrenciaMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<div id="ocorrenciaForm" class="hidden">
+<h3 id="ocorrenciaFormTitulo"></h3>
+
+<h4>Loja</h4>
+<button class="secundario" onclick="show('lojas')">➕ Cadastrar Nova Loja</button>
+<input id="buscaLojaOcorrencia" placeholder="🔎 Buscar por razão social, CNPJ ou cidade..." oninput="renderListaLojasOcorrencia()">
+<div id="listaLojasOcorrencia"></div>
+<div class="card hidden" id="ocorrenciaLojaSelecionadaCard"></div>
+
+<h4>Data da Ocorrência</h4>
+<input type="date" id="ocorrenciaData">
+
+<h4>Categoria de Produtos</h4>
+<select id="ocorrenciaCategoriaSelect" onchange="onChangeOcorrenciaCategoria()"></select>
+<select id="ocorrenciaProdutoSelect"></select>
+<button class="secundario" onclick="adicionarCategoriaOcorrencia()">➕ Adicionar Categoria/Produto</button>
+
+<div id="listaCategoriasOcorrencia"></div>
+
+<h4>Agência</h4>
+<select id="ocorrenciaAgenciaSelect" onchange="onChangeOcorrenciaAgencia()">
+<option value="Dinâmica">Dinâmica</option>
+<option value="__OUTRA__">➕ Outra (digitar)</option>
+</select>
+<input id="ocorrenciaAgenciaPersonalizada" class="hidden" placeholder="Digite o nome da agência">
+
+<h4>Motivo da Reclamação</h4>
+<textarea id="ocorrenciaMotivo" placeholder="Descreva o motivo da ocorrência..."></textarea>
+
+<h4>Observação</h4>
+<textarea id="ocorrenciaObservacao" placeholder="Observações adicionais..."></textarea>
+
+<h4>Fonte da Informação</h4>
+<div class="card" id="ocorrenciaFonteVendedor"></div>
+<div id="listaFontesExtras"></div>
+<input id="novaFonteExtra" placeholder="Nome de outra fonte (opcional)">
+<button class="secundario" onclick="adicionarFonteExtra()">➕ Adicionar mais uma fonte</button>
+
+<button onclick="salvarOcorrencia()">💾 Salvar Ocorrência</button>
+<button onclick="show('ocorrenciaRede')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== AGENDA ===================== -->
+<div id="agenda" class="hidden">
+<h2>Agenda</h2>
+
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+
+<select id="redeSelectAgenda"></select>
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Escolha a Data do Agendamento com o Cliente</div>
+<input type="date" id="dataAgenda">
+<input id="obsAgenda" placeholder="Observação (opcional)">
+<button onclick="salvarAgendamento()">📅 Agendar</button>
+
+
+<h4>Próximos atendimentos</h4>
+<div id="listaAgenda"></div>
+
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+</div>
+
+<!-- ===================== SOMA DE CX E VOLUME ===================== -->
+<div id="volumeMenu" class="hidden">
+<button onclick="voltar()" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Soma de CX e Volume</h2>
+<button onclick="abrirVolumeSetup()">➕ Novo Simulado</button>
+
+<h4>Simulados salvos por rede</h4>
+<div id="listaRedesVolume"></div>
+</div>
+
+<div id="volumeSetup" class="hidden">
+<button onclick="show('volumeMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Novo Simulado de Carga</h2>
+<button class="secundario" onclick="show('redes')">➕ Cadastrar Nova Rede</button>
+
+<select id="redeSelectVolume"></select>
+<div style="margin-top:8px;font-size:15px;color:#b30000;font-weight:bold;">Selecione a Data do Simulado</div>
+<input type="date" id="dataVolume">
+
+<button onclick="confirmarVolumeSetup()">Continuar</button>
+</div>
+
+<div id="somaVolume" class="hidden">
+<button onclick="show('volumeSetup')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Soma de CX e Volume</h2>
+<h3 id="infoVolume"></h3>
+<div class="aviso">Selecione a categoria, o produto e a quantidade de caixas — o total de caixas, peso bruto e paletes é calculado em tempo real.</div>
+
+<select id="volumeCategoriaSelect" onchange="onChangeVolumeCategoria()"></select>
+<select id="volumeProdutoSelect" onchange="onChangeVolumeProduto()"></select>
+<input id="volumeQtdCaixas" placeholder="Quantidade de Caixas" inputmode="numeric" oninput="atualizarSubtotalCategoriaVolume();">
+
+<button onclick="adicionarItemVolume()">Adicionar</button>
+
+<div id="subtotalCategoriaVolume" style="background:#b30000;color:#fff;padding:20px;border-radius:12px;margin:15px 0;font-size:18px;font-weight:bold;text-align:center;"></div>
+
+<div class="aviso hidden" id="volumeSemDados"></div>
+
+<div id="listaItensVolume"></div>
+
+<div class="total" id="totaisVolume"></div>
+
+<button onclick="abrirDivisaoCarga()">🚛 Dividir Carga (Truck / Bitruck / Carreta)</button>
+<button class="secundario" onclick="limparVolume()">🗑️ Limpar Itens</button>
+</div>
+
+<div id="divisaoCarga" class="hidden">
+<button onclick="show('somaVolume')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h2>Divisão de Carga</h2>
+<div class="aviso" id="divisaoResumo"></div>
+<div id="divisaoListaCargas"></div>
+
+<button onclick="salvarSimuladoVolume()">💾 Salvar Simulado</button>
+<button onclick="gerarTextoVolume()">📲 Gerar Texto</button>
+<button onclick="gerarPdfVolumeAtual()">📄 Gerar PDF</button>
+</div>
+
+<div id="volumeRedeSalvos" class="hidden">
+<button onclick="show('volumeMenu')" style="position:fixed;bottom:20px;right:20px;width:auto;padding:14px 22px;border-radius:30px;box-shadow:0 4px 12px rgba(0,0,0,0.4);z-index:500;">⬅️ Voltar</button>
+
+<h3 id="volumeRedeSalvosNome"></h3>
+<div id="listaSimuladosVolume"></div>
+</div>
+
+</div>
+
+<div id="modalConfirmPedidoPro" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:16px;width:85%;max-width:340px;overflow:hidden;">
+<div style="background:#b30000;padding:24px 20px;text-align:center;">
+<div style="font-size:32px;margin-bottom:4px;">⚠️</div>
+<div style="font-size:26px;font-weight:bold;color:#fff;letter-spacing:0.5px;">PEDIDO PRO</div>
+</div>
+<div style="padding:20px;text-align:center;">
+<p id="modalConfirmPedidoProTexto" style="font-size:14px;color:#333;margin:0 0 20px;line-height:1.5;white-space:pre-line;"></p>
+<div style="display:flex;gap:10px;">
+<button onclick="resolverModalConfirmPedidoPro(false)" style="flex:1;background:#666;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:bold;">Cancelar</button>
+<button onclick="resolverModalConfirmPedidoPro(true)" style="flex:1;background:#b30000;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:bold;">OK</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="modalPedidoPro" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+<div style="background:#fff;border-radius:16px;width:85%;max-width:340px;overflow:hidden;">
+<div style="background:#b30000;padding:24px 20px;text-align:center;">
+<div id="modalPedidoProIcone" style="font-size:32px;margin-bottom:4px;">📄</div>
+<div style="font-size:26px;font-weight:bold;color:#fff;letter-spacing:0.5px;">PEDIDO PRO</div>
+</div>
+<div style="padding:20px;text-align:center;">
+<p id="modalPedidoProTexto" style="font-size:14px;color:#333;margin:0 0 20px;line-height:1.5;white-space:pre-line;"></p>
+<button onclick="fecharModalPedidoPro()" style="width:100%;background:#b30000;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:bold;">OK</button>
+</div>
+</div>
+</div>
+
+<div id="leitorOverlay" class="hidden">
+<div style="background:#b30000;color:#fff;padding:15px;text-align:center;font-weight:bold;">📷 Aponte a câmera para o código de barras</div>
+<div id="leitorCodigoBarras" style="flex:1;"></div>
+<button onclick="fecharLeitorCodigoBarras()" style="margin:15px;">Cancelar</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+
+/* =========================================================
+   ESTADO GERAL
+   ========================================================= */
+let usuarios=[];
+let usuarioAtivoId=null;
+
+let clientes=[],categorias=[],pedidos=[];
+let pedidoAtual=[],clienteAtual=null,dataAtual=null;
+
+/* novos módulos */
+let lojas=[];
+let produtos=[];
+let produtosCarregados=false;
+let trocas=[];
+let proximoNumeroTroca=1;
+let proximoNumeroDemandaPorRede={};
+let demandas=[];
+let agendamentos=[];
+let ocorrencias=[];
+let proximoNumeroOcorrenciaPorRede={};
+let simuladosVolume=[];
+
+/* controle de edição */
+let pedidoEditIndex=null;
+let trocaEditIndex=null;
+let orcamentoRedeIndex=null;
+let demandaRedeAtual=null;
+let demandaEditIndex=null;
+let ocorrenciaRedeAtual=null;
+let ocorrenciaEditIndex=null;
+let ocorrenciaLojaSelecionada=null;
+let ocorrenciaFontesExtras=[];
+let ocorrenciaCategoriasSelecionadas=[];
+
+/* estado temporário do fluxo de troca */
+let trocaAtual={
+rede:null,
+loja:null,
+data:null,
+itens:[],
+valorPedido:0,
+resultado:null
+};
+
+function operadorAtual(){
+let u=usuarioAtivo();
+return u?u.nome:"Vendedor";
+}
+
+const CATALOGO_VERSAO = 14;
+
+const PRODUTOS_PADRAO = [{"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO CREAM CRACKER 350G", "codbarras": "7896111421895"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO AGUA E SAL 350G", "codbarras": "7896111421888"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO COCO 350G", "codbarras": "7896111422052"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO MARIA 350G", "codbarras": "7896111422045"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO LEITE 350G", "codbarras": "7896111422069"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO MAIZENA 350G", "codbarras": "7896111422076"}, {"grupo": "LAMINADO 20X350G", "descricao": "BISCOITO DOBLE 350G", "codbarras": "7896111425824"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO CREAM CRACKER 700G", "codbarras": "7896111424582"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO AGUA E SAL 700G", "codbarras": "7896111424575"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO COCO 700G", "codbarras": "7896111424612"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO MARIA 700G", "codbarras": "7896111424629"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO LEITE 700G", "codbarras": "7896111424605"}, {"grupo": "LAMINADO 10X700G", "descricao": "BISCOITO MAIZENA 700G", "codbarras": "7896111424599"}, {"grupo": "BISCOITO BOLACHÃO 10X400G", "descricao": "BISCOITO BOLACHAO MEL 400G", "codbarras": "7896111420270"}, {"grupo": "BISCOITO CHAMPANHE 24X150G", "descricao": "BISCOITO CHAMPANHE 150G", "codbarras": "7896111426845"}, {"grupo": "BISCOITO PÃO COBERTO 16X250G", "descricao": "BISCOITO PAO DE MEL CH 250G", "codbarras": "7896111426869"}, {"grupo": "DONUS 20X80G", "descricao": "BISCOITO DONUS CHOC LEI 75G", "codbarras": "7896111427064"}, {"grupo": "DONUS 20X80G", "descricao": "BISCOITO DONUS CHOC BRA 75G", "codbarras": "7896111427088"}, {"grupo": "DONUS 20X80G", "descricao": "BISCOITO DONUS CHOC AMAR 75G", "codbarras": "7896111427071"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO ROSCA DE CALDA 250G", "codbarras": "7896111423691"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO DUETTO 250G", "codbarras": "7896111423820"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO PAO DE MEL 250G", "codbarras": "7896111423738"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO ROSC CALD CAPU 250G", "codbarras": "7896111426968"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO ROSC DE CAL MOR 250G", "codbarras": "7896111426920"}, {"grupo": "ROSCAS CALDEADOS 20X250G", "descricao": "BISCOITO ROSCA CALD CHO 250G", "codbarras": "7896111426944"}, {"grupo": "ROSCAS CALDEADOS 12X500G", "descricao": "BISCOITO ROSCA DE CALDA 500G", "codbarras": "7896111422403"}, {"grupo": "ROSCAS CALDEADOS 12X500G", "descricao": "BISCOITO DUETTO 500G", "codbarras": "7896111426517"}, {"grupo": "ROSCAS CALDEADOS 12X500G", "descricao": "BISCOITO PAO DE MEL 500G", "codbarras": "7896111423813"}, {"grupo": "ROSCAS TRADICIONAL 20X250G", "descricao": "BISCOITO ROSCA DE LEITE 250G", "codbarras": "7896111423707"}, {"grupo": "ROSCAS TRADICIONAL 20X250G", "descricao": "BISCOITO ROSCA DE COCO 20X250G", "codbarras": "7896111423714"}, {"grupo": "ROSCAS TRADICIONAL 20X250G", "descricao": "BISCOITO ROSCA CHOC 20X250", "codbarras": "7896111423721"}, {"grupo": "ROSCAS TRADICIONAL 20X250G", "descricao": "BISCOITO ROSCA DE NATA 20X250G", "codbarras": "7896111426739"}, {"grupo": "ROSCAS TRADICIONAL 20X250G", "descricao": "BISCOITO ROSCA MORANGO 20X250G", "codbarras": "7896111426722"}, {"grupo": "ROSCA TRADICIONAL 12X500G", "descricao": "BISCOITO ROSCA MORANGO 500G", "codbarras": "7896111426883"}, {"grupo": "ROSCA TRADICIONAL 12X500G", "descricao": "BISCOITO ROSCA DE NATA 500G", "codbarras": "7896111426890"}, {"grupo": "ROSCA TRADICIONAL 12X500G", "descricao": "BISCOITO ROSCA DE COCO 500G", "codbarras": "7896111422427"}, {"grupo": "ROSCA TRADICIONAL 12X500G", "descricao": "BISCOITO ROSCA DE LEITE 500", "codbarras": "7896111422410"}, {"grupo": "ROSCA TRADICIONAL 12X500G", "descricao": "BISCOITO SORTIDO DOCE 500G", "codbarras": "7896111422434"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER NOZES 100G", "codbarras": "7896111426029"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER CH AVELA 100G", "codbarras": "7896111426227"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER CH SUICO 100G", "codbarras": "7896111426210"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER CHEESECAK. 100G", "codbarras": "7896111427125"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER CREME BOM. 100G", "codbarras": "7896111427132"}, {"grupo": "WAFER 40X100G", "descricao": "BISCOITO WAFER ACAI T. 100G", "codbarras": "7896111427149"}, {"grupo": "WAFER 40X84G", "descricao": "BISCOITO WAFER MORANGO 84G", "codbarras": "7896111426654"}, {"grupo": "WAFER 40X84G", "descricao": "BISCOITO WAFER CH BRANCO 84G", "codbarras": "7896111426678"}, {"grupo": "WAFER 40X84G", "descricao": "BISCOITO WAFER CHOCOLATE 84G", "codbarras": "7896111426647"}, {"grupo": "WAFER 40X84G", "descricao": "BISCOITO WAFER LIMAO 84G", "codbarras": "7896111426760"}, {"grupo": "WAFER 40X84G", "descricao": "BISCOITO WAFER DOCE LEITE 84G", "codbarras": "7896111426661"}, {"grupo": "RECHEADOS 40X110G", "descricao": "BISCOITO RECH CHOCOLATE 110G", "codbarras": "7896111421543"}, {"grupo": "RECHEADOS 40X110G", "descricao": "BISCOITO RECH MORANGO 110G", "codbarras": "7896111421536"}, {"grupo": "RECHEADOS 40X110G", "descricao": "BISCOITO RECH CHOC BRAN 110G", "codbarras": "7896111421550"}, {"grupo": "MASSA C/OVOS 20X500G (Espaguete, Linguine)", "descricao": "MASSA ESPAGUETE OVOS 500G", "codbarras": "7896111419786"}, {"grupo": "MASSA C/OVOS 20X500G (Espaguete, Linguine)", "descricao": "MASSA LINGUINE OVOS 500G", "codbarras": "7896111424971"}, {"grupo": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "descricao": "MASSA PARAFUSO OVOS 500G", "codbarras": "7896111419922"}, {"grupo": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "descricao": "MASSA PENNE OVOS 500G", "codbarras": "7896111419939"}, {"grupo": "MASSA C/OVOS 20X500G (Ave Maria, Conchinha)", "descricao": "MASSA AVE MARIA OVOS 500G", "codbarras": "7896111424995"}, {"grupo": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "descricao": "MASSA PADRE NOSSO OVOS 500G", "codbarras": "7896111419809"}, {"grupo": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "descricao": "MASSA ESPIRAL OVOS 500G", "codbarras": "7896111422267"}, {"grupo": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "descricao": "MASSA RIGATONE OVOS 500G", "codbarras": "7896111419977"}, {"grupo": "MASSA C/OVOS 20X500G (Ave Maria, Conchinha)", "descricao": "MASSA CONCHINHA OVOS 500G", "codbarras": "7896111426777"}, {"grupo": "MASSA C/OVOS 20X400G (Furadinho)", "descricao": "MASSA FURADINHO OVOS 400G", "codbarras": "7896111426982"}, {"grupo": "MASSA OVOS NINHO 20X500G", "descricao": "MASSA NINHO OVOS 500G", "codbarras": "7896111424537", "kg": 10.97, "caixasPorPalete": 21, "m3": 0.06126}, {"grupo": "MASSA SÊMOLA NINHO 20X500G", "descricao": "MASSA NINHO SEMOLA 500G", "codbarras": "7896111424544", "kg": 10.97, "caixasPorPalete": 21, "m3": 0.06126}, {"grupo": "MASSA SÊMOLA 20X500G (Ave Maria)", "descricao": "MASSA AVE MARIA SEM 500G", "codbarras": "7896111425077"}, {"grupo": "MASSA SÊMOLA 20X500G (Espaguete)", "descricao": "MASSA ESPAGUETE SEM 500", "codbarras": "7896111419762"}, {"grupo": "MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)", "descricao": "MASSA PARAFUSO SEM 500G", "codbarras": "7896111419953"}, {"grupo": "MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)", "descricao": "MASSA PADRE NOSSO SEM 500G", "codbarras": "7896111419878"}, {"grupo": "MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)", "descricao": "MASSA ESPIRAL SEM 500G", "codbarras": "7896111419816"}, {"grupo": "MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)", "descricao": "MASSA PENNE SEM 500G", "codbarras": "7896111425091"}, {"grupo": "MASSA SÊMOLA 10X1000G (Espaguete)", "descricao": "MASSA ESPAGUETE SEM 1000 (1KG)", "codbarras": "7896111419779"}, {"grupo": "MASSA SÊMOLA 10X1000G (Parafuso)", "descricao": "MASSA PARAFUSO SEM 1000 (1KG)", "codbarras": "7896111419830"}, {"grupo": "MASSA TRICOLORE 20X500G", "descricao": "MASSA PARAFUSO S TRIC 500G", "codbarras": "7896111422601", "kg": 10.35, "caixasPorPalete": 48, "m3": 0.044887}, {"grupo": "MASSA TRICOLORE 20X500G", "descricao": "MASSA PENNE SEM TRIC 500G", "codbarras": "7896111422618", "kg": 10.35, "caixasPorPalete": 48, "m3": 0.044887}, {"grupo": "MASSA INTEGRAL 20X500G (Espaguete)", "descricao": "MASSA SAUDUTTI ESPAG INT 500G", "codbarras": "7896111425589"}, {"grupo": "MASSA INTEGRAL 20X500G (Parafuso)", "descricao": "MASSA SAUDUTTI PARAF INT 500G", "codbarras": "7896111425572"}, {"grupo": "MASSA ESPECIAL 12X200G (Canelloni, Conchiglioni)", "descricao": "MASSA S CANELLONI OVOS  200G", "codbarras": "7896111422632", "kg": 2.64, "caixasPorPalete": 100, "m3": 0.029083}, {"grupo": "MASSA ESPECIAL 12X200G (Canelloni, Conchiglioni)", "descricao": "MASSA S CONCHIGLIONI OVO 200G", "codbarras": "7896111422625", "kg": 2.64, "caixasPorPalete": 100, "m3": 0.029083}, {"grupo": "MASSA ESPECIAL 20X500G (Lasanha)", "descricao": "MASSA S LASANHA OVOS 500G", "codbarras": "7896111422649", "kg": 10.87, "caixasPorPalete": 35, "m3": 0.032999}, {"grupo": "MASSA GRANO DURO 20X500G (Espaguete)", "descricao": "MASSA ESPAG GRANO DURO 500G", "codbarras": "7896111425558"}, {"grupo": "MASSA GRANO DURO 20X500G (Parafuso)", "descricao": "MASSA PARAF GRANO DURO 500G", "codbarras": "7896111425541"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST CARNE 70G", "codbarras": "7896111419885"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST GALINHA 70G", "codbarras": "7896111419915"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST GAL CAIPIR 70G", "codbarras": "7896111419908"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST BACON 70G", "codbarras": "7896111419847"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST CARNE C BATAT 70G", "codbarras": "7896111426548"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST PICANHA 70G", "codbarras": "7896111426555"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST TOMATE MANJER 70G", "codbarras": "7896111427019"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST FEIJAO C BACON 70G", "codbarras": "7896111427002"}, {"grupo": "INSTANTANEOS 50X70G", "descricao": "MASSA INST LEGUME NA MAN. 70G", "codbarras": "7896111427026"}, {"grupo": "QUEIJO FINO 25X40G", "descricao": "QUEIJO RALADO FINO 40G", "codbarras": "7896111426524", "kg": 1.187, "caixasPorPalete": 232, "m3": 0.005796}, {"grupo": "QUEIJO GROSSO 25X40G", "descricao": "QUEIJO RALADO GROSSO 40G", "codbarras": "7896111425985", "kg": 1.209, "caixasPorPalete": 232, "m3": 0.005796}, {"grupo": "MASSA ROBERTA 24X500G (Espaguete)", "descricao": "MASSA ROBERTA OVOS ESP. 500G", "codbarras": "7896111425442"}, {"grupo": "MASSA ROBERTA 24X500G (Parafuso)", "descricao": "MASSA ROBERTA OVOS PAR. 500G", "codbarras": "7896111425411"}, {"grupo": "PÃO DE MEL TRADICIONAL 12X500G", "descricao": "PAO DE MEL TRADICIONAL 500G", "codbarras": "7896111427392"}, {"grupo": "MASSA SÊMOLA 20X400G (Furadinho)", "descricao": "MASSA FURADINHO SEMOLA 400G", "codbarras": "7896111427385"}, {"grupo": "MASSA ROBERTA SÊMOLA 22X400G (Espaguete)", "descricao": "MASSA ROBERTA SEMOLA ESP. 400G", "codbarras": "7896111427422"}, {"grupo": "MASSA ROBERTA SÊMOLA 22X400G (Parafuso)", "descricao": "MASSA ROBERTA SEMOLA PAR. 400G", "codbarras": "7896111427439"}];
+
+const CATEGORIAS_PADRAO = [{"nome": "LAMINADO 20X350G", "qtd": 20, "caixasPorPalete": 72, "kg": 7.25, "m3": 0.028958}, {"nome": "LAMINADO 10X700G", "qtd": 10, "caixasPorPalete": 72, "kg": 7.2, "m3": 0.029507}, {"nome": "ROSCAS CALDEADOS 20X250G", "qtd": 20, "caixasPorPalete": 48, "kg": 5.56, "m3": 0.030644}, {"nome": "ROSCAS CALDEADOS 12X500G", "qtd": 12, "caixasPorPalete": 42, "kg": 6.4, "m3": 0.041951}, {"nome": "ROSCAS TRADICIONAL 20X250G", "qtd": 20, "caixasPorPalete": 48, "kg": 5.56, "m3": 0.030644}, {"nome": "ROSCA TRADICIONAL 12X500G", "qtd": 12, "caixasPorPalete": 42, "kg": 6.4, "m3": 0.038208}, {"nome": "WAFER 40X84G", "qtd": 40, "caixasPorPalete": 128, "kg": 3.953, "m3": 0.013969}, {"nome": "WAFER 40X100G", "qtd": 40, "caixasPorPalete": 144, "kg": 4.534, "m3": 0.011554}, {"nome": "RECHEADOS 40X110G", "qtd": 40, "caixasPorPalete": 140, "kg": 4.9, "m3": 0.014062}, {"nome": "BISCOITO CHAMPANHE 24X150G", "qtd": 24, "caixasPorPalete": 80, "kg": 3.944, "m3": 0.025392}, {"nome": "BISCOITO BOLACHÃO 10X400G", "qtd": 10, "caixasPorPalete": 56, "kg": 4.69, "m3": 0.028872}, {"nome": "BISCOITO PÃO COBERTO 16X250G", "qtd": 16, "caixasPorPalete": 64, "kg": 4.25, "m3": 0.0169}, {"nome": "PÃO DE MEL TRADICIONAL 12X500G", "qtd": 12, "caixasPorPalete": 42, "kg": 6.4, "m3": 0.038208}, {"nome": "DONUS 20X80G", "qtd": 20, "caixasPorPalete": 110, "kg": 1.9, "m3": 0.016627}, {"nome": "MASSA C/OVOS 20X500G (Espaguete, Linguine)", "qtd": 20, "caixasPorPalete": 100, "kg": 10.35, "m3": 0.013679}, {"nome": "MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)", "qtd": 20, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.044887}, {"nome": "MASSA C/OVOS 20X500G (Ave Maria, Conchinha)", "qtd": 20, "caixasPorPalete": 56, "kg": 10.35, "m3": 0.027216}, {"nome": "MASSA C/OVOS 20X400G (Furadinho)", "qtd": 20, "caixasPorPalete": 100, "kg": 8.35, "m3": 0.013679}, {"nome": "MASSA OVOS NINHO 20X500G", "qtd": 20, "caixasPorPalete": 21, "kg": 10.97, "m3": 0.06126}, {"nome": "MASSA SÊMOLA 20X500G (Espaguete)", "qtd": 20, "caixasPorPalete": 100, "kg": 10.35, "m3": 0.013679}, {"nome": "MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)", "qtd": 20, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.044887}, {"nome": "MASSA SÊMOLA 20X500G (Ave Maria)", "qtd": 20, "caixasPorPalete": 56, "kg": 10.35, "m3": 0.027216}, {"nome": "MASSA SÊMOLA 10X1000G (Espaguete)", "qtd": 10, "caixasPorPalete": 100, "kg": 10.35, "m3": 0.013679}, {"nome": "MASSA SÊMOLA 10X1000G (Parafuso)", "qtd": 10, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.038304}, {"nome": "MASSA SÊMOLA 20X400G (Furadinho)", "qtd": 20, "caixasPorPalete": 100, "kg": 8.35, "m3": 0.013679}, {"nome": "MASSA SÊMOLA NINHO 20X500G", "qtd": 20, "caixasPorPalete": 21, "kg": 10.97, "m3": 0.06126}, {"nome": "MASSA TRICOLORE 20X500G", "qtd": 20, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.044887}, {"nome": "MASSA INTEGRAL 20X500G (Espaguete)", "qtd": 20, "caixasPorPalete": 100, "kg": 10.35, "m3": 0.013679}, {"nome": "MASSA INTEGRAL 20X500G (Parafuso)", "qtd": 20, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.044887}, {"nome": "MASSA GRANO DURO 20X500G (Espaguete)", "qtd": 20, "caixasPorPalete": 100, "kg": 10.35, "m3": 0.013679}, {"nome": "MASSA GRANO DURO 20X500G (Parafuso)", "qtd": 20, "caixasPorPalete": 48, "kg": 10.35, "m3": 0.044887}, {"nome": "MASSA ROBERTA 24X500G (Espaguete)", "qtd": 24, "caixasPorPalete": 101, "kg": 12.29, "m3": 0.012002}, {"nome": "MASSA ROBERTA 24X500G (Parafuso)", "qtd": 24, "caixasPorPalete": 40, "kg": 12.28, "m3": 0.04372}, {"nome": "MASSA ROBERTA SÊMOLA 22X400G (Espaguete)", "qtd": 22, "caixasPorPalete": 111, "kg": 9.0, "m3": 0.012276}, {"nome": "MASSA ROBERTA SÊMOLA 22X400G (Parafuso)", "qtd": 22, "caixasPorPalete": 54, "kg": 9.04, "m3": 0.03978}, {"nome": "INSTANTANEOS 50X70G", "qtd": 50, "caixasPorPalete": 72, "kg": 4.11, "m3": 0.026929}, {"nome": "MASSA ESPECIAL 12X200G (Canelloni, Conchiglioni)", "qtd": 12, "caixasPorPalete": 100, "kg": 2.64, "m3": 0.029083}, {"nome": "MASSA ESPECIAL 20X500G (Lasanha)", "qtd": 20, "caixasPorPalete": 35, "kg": 10.87, "m3": 0.032999}, {"nome": "QUEIJO FINO 25X40G", "qtd": 25, "caixasPorPalete": 232, "kg": 1.187, "m3": 0.005796}, {"nome": "QUEIJO GROSSO 25X40G", "qtd": 25, "caixasPorPalete": 232, "kg": 1.209, "m3": 0.005796}];
+
+/* =========================================================
+   USUÁRIOS
+   ========================================================= */
+function carregarUsuarios(){
+usuarios=JSON.parse(localStorage.getItem("usuarios")||"[]");
+usuarioAtivoId=localStorage.getItem("usuarioAtivoId")||null;
+}
+
+function salvarUsuarios(){
+localStorage.setItem("usuarios",JSON.stringify(usuarios));
+if(usuarioAtivoId){
+localStorage.setItem("usuarioAtivoId",usuarioAtivoId);
+}else{
+localStorage.removeItem("usuarioAtivoId");
+}
+}
+
+function chaveDb(){
+return `db_${usuarioAtivoId}`;
+}
+
+function usuarioAtivo(){
+return usuarios.find(u=>u.id===usuarioAtivoId);
+}
+
+function mostrarTelaLogin(){
+document.querySelectorAll('.container > div').forEach(e=>e.classList.add('hidden'));
+document.getElementById("login").classList.remove('hidden');
+renderListaUsuariosLogin();
+}
+
+function renderListaUsuariosLogin(){
+listaUsuariosLogin.innerHTML="";
+usuarios.forEach(u=>{
+listaUsuariosLogin.innerHTML+=`
+<div class="card" onclick="entrarComUsuario('${u.id}')">
+<b>${u.nome}</b><br>SVN: ${u.svn}
+<button class="pequeno excluir" onclick="event.stopPropagation();removerUsuario('${u.id}')">❌ Remover</button>
+</div>`;
+});
+
+if(usuarios.length>=3){
+novoUsuarioForm.classList.add("hidden");
+avisoLimiteUsuarios.classList.remove("hidden");
+}else{
+novoUsuarioForm.classList.remove("hidden");
+avisoLimiteUsuarios.classList.add("hidden");
+novoUsuarioNome.value="";
+novoUsuarioSvn.value="";
+}
+}
+
+function cadastrarUsuario(){
+let nome=novoUsuarioNome.value.trim();
+let svn=novoUsuarioSvn.value.trim();
+
+if(!nome){mostrarModalPedidoPro("Digite o nome do vendedor.","⚠️");return;}
+if(!svn){mostrarModalPedidoPro("Digite o SVN.","⚠️");return;}
+if(usuarios.length>=3){mostrarModalPedidoPro("Limite de 3 usuários atingido.","⚠️");return;}
+
+let id="u_"+Date.now();
+
+usuarios.push({id,nome,svn});
+usuarioAtivoId=id;
+salvarUsuarios();
+
+load();
+show("menu");
+}
+
+function entrarComUsuario(id){
+usuarioAtivoId=id;
+salvarUsuarios();
+load();
+show("menu");
+}
+
+async function removerUsuario(id){
+if(!await confirmarPedidoPro("Remover esse usuário? Todos os dados dele (redes, pedidos, trocas, demandas, tudo) serão apagados permanentemente. Essa ação não pode ser desfeita.")) return;
+
+usuarios=usuarios.filter(u=>u.id!==id);
+localStorage.removeItem(`db_${id}`);
+if(usuarioAtivoId===id) usuarioAtivoId=null;
+salvarUsuarios();
+renderListaUsuariosLogin();
+}
+
+function renderUsuarioAtivoInfo(){
+let u=usuarioAtivo();
+let painel=document.getElementById("usuarioAtivoInfo");
+if(!painel) return;
+painel.innerHTML = u ? `👤 <b>${u.nome}</b><br>SVN: ${u.svn}` : "";
+}
+
+/* =========================================================
+   PERSISTÊNCIA
+   ========================================================= */
+function save(){
+localStorage.setItem(chaveDb(),JSON.stringify({
+clientes,categorias,pedidos,
+lojas,produtos,produtosCarregados,trocas,
+catalogoVersao:CATALOGO_VERSAO,
+proximoNumeroTroca,
+demandas,agendamentos,
+proximoNumeroDemandaPorRede,
+ocorrencias,proximoNumeroOcorrenciaPorRede,
+simuladosVolume
+}));
+}
+
+function load(){
+let d=JSON.parse(localStorage.getItem(chaveDb())||"{}");
+clientes=d.clientes||[];
+categorias=d.categorias||[];
+pedidos=d.pedidos||[];
+
+lojas=d.lojas||[];
+produtos=d.produtos||[];
+produtosCarregados=d.produtosCarregados||false;
+trocas=d.trocas||[];
+proximoNumeroTroca=d.proximoNumeroTroca||1;
+demandas=d.demandas||[];
+agendamentos=d.agendamentos||[];
+proximoNumeroDemandaPorRede=d.proximoNumeroDemandaPorRede||{};
+ocorrencias=d.ocorrencias||[];
+proximoNumeroOcorrenciaPorRede=d.proximoNumeroOcorrenciaPorRede||{};
+simuladosVolume=d.simuladosVolume||[];
+
+// migração: relatórios de troca salvos antes da numeração sequencial ganham número agora
+let semNumero = trocas.filter(t=>!t.numero);
+if(semNumero.length>0){
+semNumero.forEach(t=>{ t.numero = proximoNumeroTroca++; });
+}
+
+// migração: renumera demandas em sequência própria por rede (em vez de sequência global)
+let precisaRenumerar = demandas.some(dm=>!dm.numero) || Object.keys(proximoNumeroDemandaPorRede).length===0;
+if(demandas.length>0 && precisaRenumerar){
+let contadores={};
+demandas
+.slice()
+.sort((a,b)=>(a.criadoEm||"").localeCompare(b.criadoEm||""))
+.forEach(dm=>{
+contadores[dm.rede]=(contadores[dm.rede]||0)+1;
+dm.numero=contadores[dm.rede];
+});
+Object.keys(contadores).forEach(rede=>{
+proximoNumeroDemandaPorRede[rede]=contadores[rede]+1;
+});
+}
+
+// migração: status antigos (antes da mudança de opções) viram os novos equivalentes
+demandas.forEach(dm=>{
+if(dm.status==="Andamento") dm.status="Em Andamento";
+else if(dm.status==="Realizado") dm.status="Finalizado";
+else if(!dm.status) dm.status="Não Iniciado";
+});
+
+// migração: campo "data do alinhamento" antigo vira "data solicitada"
+demandas.forEach(dm=>{
+if(dm.dataAlinhamento && !dm.dataSolicitada){
+dm.dataSolicitada=dm.dataAlinhamento;
+delete dm.dataAlinhamento;
+}
+});
+
+let catalogoVersao=d.catalogoVersao||0;
+
+if(!produtosCarregados){
+atualizarCatalogoPadrao();
+produtosCarregados=true;
+catalogoVersao=CATALOGO_VERSAO;
+save();
+}else if(catalogoVersao<CATALOGO_VERSAO){
+atualizarCatalogoPadrao();
+catalogoVersao=CATALOGO_VERSAO;
+save();
+}
+
+// Rede de segurança: não importa o que estiver marcado como "carregado",
+// se categorias ou produtos estiverem vazios, restaura o catálogo padrão na hora.
+if(categorias.length===0 || produtos.length===0){
+atualizarCatalogoPadrao();
+save();
+}
+}
+
+/* =========================================================
+   SENHA DE ACESSO AO APP
+   ========================================================= */
+const SENHA_APP="Ninf@2026/Luc@s";
+
+function alternarVisibilidadeSenha(){
+let olhoAberto=document.getElementById("iconeOlhoAberto");
+let olhoFechado=document.getElementById("iconeOlhoFechado");
+if(senhaAppInput.type==="password"){
+senhaAppInput.type="text";
+olhoAberto.classList.add("hidden");
+olhoFechado.classList.remove("hidden");
+}else{
+senhaAppInput.type="password";
+olhoAberto.classList.remove("hidden");
+olhoFechado.classList.add("hidden");
+}
+}
+
+let tentativasSenhaErrada=0;
+
+function verificarSenhaApp(){
+let digitada=senhaAppInput.value;
+if(digitada===SENHA_APP){
+tentativasSenhaErrada=0;
+localStorage.setItem("senhaAppLiberada","sim");
+iniciarAppDeVerdade();
+}else{
+tentativasSenhaErrada++;
+if(tentativasSenhaErrada>=3){
+mostrarModalPedidoPro("Senha incorreta.\n\nEm caso de perda ou esquecimento da senha, entre em contato:\n\nLucas Siqueira\n(44) 98863-8817\nlucasdebarrossiqueira@gmail.com","⚠️");
+}else{
+mostrarModalPedidoPro("Senha incorreta. Tente novamente.","⚠️");
+}
+senhaAppInput.value="";
+senhaAppInput.focus();
+}
+}
+
+function iniciarAppDeVerdade(){
+carregarUsuarios();
+if(usuarioAtivoId && usuarios.find(u=>u.id===usuarioAtivoId)){
+load();
+show("menu");
+}else{
+mostrarTelaLogin();
+}
+}
+
+/* =========================================================
+   INICIALIZAÇÃO DO APP
+   ========================================================= */
+function iniciarComOuSemSenha(){
+if(localStorage.getItem("senhaAppLiberada")==="sim"){
+iniciarAppDeVerdade();
+}else{
+show("telaSenha");
+}
+}
+document.addEventListener("DOMContentLoaded",()=>iniciarComOuSemSenha());
+if(document.readyState!=="loading") iniciarComOuSemSenha();
+
+// Atualiza produtos e categorias padrão sem apagar cadastros manuais (redes, lojas, pedidos, trocas)
+function atualizarCatalogoPadrao(){
+// Produto descontinuado: não existe mais no catálogo da Ninfa
+produtos=produtos.filter(p=>!p.descricao || !p.descricao.toUpperCase().includes("FIDELINHO"));
+
+// Nomes de categoria abreviados que viraram nome completo — renomeia quem já tinha
+let renomearCategorias={
+// nomes abreviados de versões antigas -> nome "limpo" que veio depois
+"B. INST. BOLACHÃO":"BISCOITO BOLACHÃO",
+"B. INST. CHAMPANHE":"BISCOITO CHAMPANHE",
+"B. INST. PAO COBERTO":"BISCOITO PÃO COBERTO",
+"BISCOITO INSTANTÂNEO BOLACHÃO":"BISCOITO BOLACHÃO",
+"BISCOITO INSTANTÂNEO CHAMPANHE":"BISCOITO CHAMPANHE",
+"BISCOITO INSTANTÂNEO PÃO COBERTO":"BISCOITO PÃO COBERTO",
+"M. ESP. CAN/CONCH.":"MASSA ESPECIAL CANELLONI/CONCHIGLIONI",
+"M. ESP. LASANHA":"MASSA ESPECIAL LASANHA",
+"M. OVOS NIN. 500G":"MASSA OVOS NINHO 500G",
+"M. SEMOLA NIN. 500G":"MASSA SÊMOLA NINHO 500G",
+"M. TRICOLORE 500G":"MASSA TRICOLORE 500G",
+// nomes "limpos" -> nome atual, com a quantidade por caixa/fardo igual a planilha
+"BISCOITO BOLACHÃO":"BISCOITO BOLACHÃO 10X400G",
+"BISCOITO CHAMPANHE":"BISCOITO CHAMPANHE 24X150G",
+"BISCOITO PÃO COBERTO":"BISCOITO PÃO COBERTO 16X250G",
+"DONUS 75G":"DONUS 20X80G",
+"INSTANTANEOS 70G":"INSTANTANEOS 50X70G",
+"LAMINADO 350G":"LAMINADO 20X350G",
+"LAMINADO 700G":"LAMINADO 10X700G",
+"MASSA C/OVOS 400G (Furadinho)":"MASSA C/OVOS 20X400G (Furadinho)",
+"MASSA C/OVOS 500G (Ave Maria, Conchinha)":"MASSA C/OVOS 20X500G (Ave Maria, Conchinha)",
+"MASSA C/OVOS 500G (Espaguete, Linguine)":"MASSA C/OVOS 20X500G (Espaguete, Linguine)",
+"MASSA C/OVOS 500G (Parafuso, Penne, Rigatone...)":"MASSA C/OVOS 20X500G (Parafuso, Penne, Rigatone...)",
+"MASSA ESPECIAL CANELLONI/CONCHIGLIONI":"MASSA ESPECIAL 12X200G (Canelloni, Conchiglioni)",
+"MASSA ESPECIAL LASANHA":"MASSA ESPECIAL 20X500G (Lasanha)",
+"MASSA GRANO DURO (Espaguete)":"MASSA GRANO DURO 20X500G (Espaguete)",
+"MASSA GRANO DURO (Parafuso)":"MASSA GRANO DURO 20X500G (Parafuso)",
+"MASSA INTEGRAL 500G (Espaguete)":"MASSA INTEGRAL 20X500G (Espaguete)",
+"MASSA INTEGRAL 500G (Parafuso)":"MASSA INTEGRAL 20X500G (Parafuso)",
+"MASSA OVOS NINHO 500G":"MASSA OVOS NINHO 20X500G",
+"MASSA ROBERTA (Espaguete)":"MASSA ROBERTA 24X500G (Espaguete)",
+"MASSA ROBERTA (Parafuso)":"MASSA ROBERTA 24X500G (Parafuso)",
+"MASSA SÊMOLA 1KG (Espaguete)":"MASSA SÊMOLA 10X1000G (Espaguete)",
+"MASSA SÊMOLA 1KG (Parafuso)":"MASSA SÊMOLA 10X1000G (Parafuso)",
+"MASSA SÊMOLA 500G (Ave Maria)":"MASSA SÊMOLA 20X500G (Ave Maria)",
+"MASSA SÊMOLA 500G (Espaguete)":"MASSA SÊMOLA 20X500G (Espaguete)",
+"MASSA SÊMOLA 500G (Parafuso, Padre Nosso, Espiral, Penne...)":"MASSA SÊMOLA 20X500G (Parafuso, Padre Nosso, Espiral, Penne...)",
+"MASSA SÊMOLA NINHO 500G":"MASSA SÊMOLA NINHO 20X500G",
+"MASSA TRICOLORE 500G":"MASSA TRICOLORE 20X500G",
+"QUEIJO FINO":"QUEIJO FINO 25X40G",
+"QUEIJO GROSSO":"QUEIJO GROSSO 25X40G",
+"RECHEADOS 110G":"RECHEADOS 40X110G",
+"ROSCA TRADICIONAL 500G":"ROSCA TRADICIONAL 12X500G",
+"ROSCAS CALDEADOS 250G":"ROSCAS CALDEADOS 20X250G",
+"ROSCAS CALDEADOS 500G":"ROSCAS CALDEADOS 12X500G",
+"ROSCAS TRADICIONAL 250G":"ROSCAS TRADICIONAL 20X250G",
+"WAFER 100G":"WAFER 40X100G",
+"WAFER 84G":"WAFER 40X84G"
+};
+// Aplica em cadeia (até 10 voltas) — cobre quem está numa versão bem antiga,
+// com vários nomes de categoria por trás até chegar no nome atual
+for(let volta=0;volta<10;volta++){
+let mudouAlgo=false;
+produtos.forEach(p=>{
+if(renomearCategorias[p.grupo]){ p.grupo=renomearCategorias[p.grupo]; mudouAlgo=true; }
+});
+categorias.forEach(c=>{
+if(renomearCategorias[c.nome]){ c.nome=renomearCategorias[c.nome]; mudouAlgo=true; }
+});
+if(!mudouAlgo) break;
+}
+
+// Quantidade por caixa/fardo corrigida pra bater com a planilha técnica
+let qtdCorrigida={"QUEIJO FINO 25X40G":25,"QUEIJO GROSSO 25X40G":25,"MASSA ROBERTA 24X500G (Espaguete)":24,"MASSA ROBERTA 24X500G (Parafuso)":24};
+categorias.forEach(c=>{
+if(qtdCorrigida[c.nome]!=null) c.qtd=qtdCorrigida[c.nome];
+});
+
+// Categorias de massa separadas por formato (cada formato tem um palete diferente,
+// agora cada categoria nova já tem o valor exato — essas 6 antigas não existem mais)
+let categoriasMassaAntigas=["M. OVOS 500G","M. SEMOLA 500G","M. SEMOLA 1000G","M. GRANO DURO","M. INTEGRAL 500G","M. ROBERTA"];
+categorias=categorias.filter(c=>!categoriasMassaAntigas.includes(c.nome));
+
+PRODUTOS_PADRAO.forEach(padrao=>{
+let existente=produtos.find(p=>p.codbarras && padrao.codbarras && p.codbarras===padrao.codbarras);
+if(existente){
+existente.grupo=padrao.grupo;
+existente.descricao=padrao.descricao;
+// Sincroniza o valor individual do produto com o padrão — inclusive removendo
+// quando o padrão não tem mais (categoria passou a ter o valor exato sozinha)
+if(padrao.kg!=null) existente.kg=padrao.kg; else delete existente.kg;
+if(padrao.caixasPorPalete!=null) existente.caixasPorPalete=padrao.caixasPorPalete; else delete existente.caixasPorPalete;
+if(padrao.m3!=null) existente.m3=padrao.m3; else delete existente.m3;
+}else{
+produtos.push({grupo:padrao.grupo,descricao:padrao.descricao,codbarras:padrao.codbarras,kg:padrao.kg,caixasPorPalete:padrao.caixasPorPalete,m3:padrao.m3});
+}
+});
+
+CATEGORIAS_PADRAO.forEach(padrao=>{
+let existente=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===padrao.nome.trim().toLowerCase());
+if(existente){
+existente.qtd=padrao.qtd;
+if(padrao.kg!=null) existente.kg=padrao.kg;
+if(padrao.caixasPorPalete!=null) existente.caixasPorPalete=padrao.caixasPorPalete;
+if(padrao.m3!=null) existente.m3=padrao.m3;
+}else{
+categorias.push({nome:padrao.nome,qtd:padrao.qtd,kg:padrao.kg,caixasPorPalete:padrao.caixasPorPalete,m3:padrao.m3});
+}
+});
+
+// Limpeza pontual: remove as subcategorias por formato (LONGA/CURTA/ESPECIAL) de uma
+// tentativa anterior — agora peso/palete/m³ variam por produto, não por categoria
+let subcategoriasAntigas=["M. GRANO DURO - LONGA","M. GRANO DURO - CURTA","M. INTEGRAL 500G - LONGA","M. INTEGRAL 500G - CURTA","M. OVOS 500G - LONGA","M. OVOS 500G - CURTA","M. OVOS 500G - ESPECIAL","M. OVOS 400G","M. SEMOLA 500G - LONGA","M. SEMOLA 500G - CURTA","M. SEMOLA 500G - ESPECIAL","M. SEMOLA 1000G - LONGA","M. SEMOLA 1000G - CURTA","M. ROBERTA - LONGA","M. ROBERTA - CURTA"];
+categorias=categorias.filter(c=>!subcategoriasAntigas.includes(c.nome));
+}
+
+function parse(v){
+return parseFloat((v||"0").replace(",","."))||0;
+}
+
+// Parser de moeda robusto (aceita "5.266,46" e "119,33"), usado só no módulo de Troca
+function parseMoeda(v){
+if(!v) return 0;
+let s=String(v).trim();
+if(s.indexOf(',')!==-1){
+s=s.replace(/\./g,'').replace(',','.');
+}
+return parseFloat(s)||0;
+}
+
+// Formata para exibição com separador de milhar (ex: 5266.46 -> "5.266,46")
+function formatarMoeda(v){
+let n=parseMoeda(v);
+if(!n) return "";
+return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function fmt2(v){
+return (v||0).toFixed(2).replace(".",",");
+}
+
+// Formata valores em R$ com separador de milhar (ex: 1000 -> "1.000,00")
+function fmtMoeda(v){
+return (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// Copia texto pra área de transferência, com fallback pra quando o app
+// não está rodando em https (Clipboard API moderna não funciona nesse caso)
+function copiarTexto(texto){
+if(navigator.clipboard && navigator.clipboard.writeText){
+navigator.clipboard.writeText(texto).then(()=>{
+mostrarModalPedidoPro("Copiado!","📋");
+}).catch(()=>{
+copiarTextoFallback(texto);
+});
+}else{
+copiarTextoFallback(texto);
+}
+}
+
+function copiarTextoFallback(texto){
+let ta=document.createElement("textarea");
+ta.value=texto;
+ta.style.position="fixed";
+ta.style.top="0";
+ta.style.left="0";
+ta.style.opacity="0";
+document.body.appendChild(ta);
+ta.focus();
+ta.select();
+
+let copiou=false;
+try{
+copiou=document.execCommand("copy");
+}catch(e){
+copiou=false;
+}
+
+document.body.removeChild(ta);
+
+if(copiou){
+mostrarModalPedidoPro("Copiado!","📋");
+}else{
+prompt("Não foi possível copiar automaticamente. Copie o texto abaixo (selecione tudo e copie):",texto);
+}
+}
+
+// Abre o PDF numa nova aba, pra o usuário ver e compartilhar de onde quiser
+// (WhatsApp, e-mail, salvar no Drive, etc), em vez de só baixar direto
+// Detecta se o app está rodando instalado (modo "standalone", sem barra de navegador)
+let resolverModalConfirmAtual=null;
+
+function confirmarPedidoPro(mensagem){
+return new Promise((resolve)=>{
+modalConfirmPedidoProTexto.textContent=mensagem;
+modalConfirmPedidoPro.classList.remove("hidden");
+modalConfirmPedidoPro.style.display="flex";
+resolverModalConfirmAtual=resolve;
+});
+}
+
+function resolverModalConfirmPedidoPro(valor){
+modalConfirmPedidoPro.classList.add("hidden");
+modalConfirmPedidoPro.style.display="none";
+if(resolverModalConfirmAtual){
+resolverModalConfirmAtual(valor);
+resolverModalConfirmAtual=null;
+}
+}
+
+function mostrarModalPedidoPro(mensagem,icone){
+modalPedidoProIcone.textContent=icone||"📄";
+modalPedidoProTexto.textContent=mensagem;
+modalPedidoPro.classList.remove("hidden");
+modalPedidoPro.style.display="flex";
+}
+
+function fecharModalPedidoPro(){
+modalPedidoPro.classList.add("hidden");
+modalPedidoPro.style.display="none";
+}
+
+function emStandalone(){
+return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true;
+}
+
+function abrirPdf(doc,nomeArquivo){
+// Em apps instalados, abrir uma nova aba costuma falhar ou ficar escondido.
+// Nesse caso, vai direto pro download, que é mais confiável.
+if(emStandalone()){
+doc.save(nomeArquivo);
+mostrarModalPedidoPro(`PDF gerado com sucesso!\n\nGeralmente ele fica salvo na pasta "Downloads" do seu celular. Você pode compartilhá-lo a partir de lá, do gerenciador de arquivos, ou das notificações de download.`,"📄");
+return;
+}
+
+try{
+let blobUrl=doc.output("bloburl");
+let novaAba=window.open(blobUrl,"_blank");
+if(!novaAba){
+// pop-up bloqueado pelo navegador: cai no download direto
+doc.save(nomeArquivo);
+}
+}catch(e){
+doc.save(nomeArquivo);
+}
+}
+
+// CORREÇÃO DATA
+function formatarData(data){
+if(!data) return "";
+let [ano, mes, dia] = data.split("-");
+return `${dia}/${mes}/${ano}`;
+}
+
+const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function mesExtenso(data){
+if(!data) return "";
+let [ano,mes] = data.split("-");
+return MESES[parseInt(mes,10)-1] || "";
+}
+
+/* =========================================================
+   MENU / NAVEGAÇÃO
+   ========================================================= */
+function show(id){
+document.querySelectorAll('.container > div').forEach(e=>e.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+
+if(id==="menu") renderUsuarioAtivoInfo();
+if(id==="redes") renderClientesPainel();
+if(id==="novoPedido") carregarClientesSelect();
+if(id==="pedido"){
+carregarCategorias();
+renderHistoricoCategoria();
+}
+if(id==="lojas") abrirCadastroLoja();
+if(id==="produtos") abrirCadastroProdutos();
+if(id==="trocaMenu") renderTrocasSalvas();
+if(id==="agenda") renderAgendaMenu();
+}
+
+function voltar(){show("menu");}
+
+async function resetarTudo(){
+if(await confirmarPedidoPro("Isso vai apagar redes, lojas, pedidos, relatórios de troca, demandas, ocorrências, simulados de carga e agenda.\n\nAs categorias e produtos padrão NÃO serão apagados — eles voltam sempre restaurados automaticamente.\n\nContinuar?")){
+clientes=[];
+lojas=[];
+pedidos=[];
+trocas=[];
+proximoNumeroTroca=1;
+demandas=[];
+agendamentos=[];
+proximoNumeroDemandaPorRede={};
+ocorrencias=[];
+proximoNumeroOcorrenciaPorRede={};
+simuladosVolume=[];
+
+produtos=[];
+categorias=[];
+atualizarCatalogoPadrao();
+produtosCarregados=true;
+
+save();
+location.reload();
+}
+}
+
+/* =========================================================
+   BACKUP / RESTAURAR
+   ========================================================= */
+async function exportarBackup(){
+let dados={
+clientes,categorias,pedidos,
+lojas,produtos,produtosCarregados,trocas,
+catalogoVersao:CATALOGO_VERSAO,
+proximoNumeroTroca,
+demandas,agendamentos,
+proximoNumeroDemandaPorRede,
+ocorrencias,proximoNumeroOcorrenciaPorRede,
+simuladosVolume,
+exportadoEm:new Date().toISOString()
+};
+
+let conteudo=JSON.stringify(dados,null,2);
+let dataArquivo=new Date().toISOString().split("T")[0];
+let nomeArquivo=`backup_pedido_pro_${dataArquivo}.json`;
+
+// Navegadores de computador (Chrome/Edge) suportam escolher a pasta de destino
+if(window.showSaveFilePicker){
+try{
+let handle=await window.showSaveFilePicker({
+suggestedName:nomeArquivo,
+types:[{description:"Backup JSON",accept:{"application/json":[".json"]}}]
+});
+let writable=await handle.createWritable();
+await writable.write(conteudo);
+await writable.close();
+mostrarModalPedidoPro("Backup salvo com sucesso no local escolhido!","💾");
+return;
+}catch(e){
+if(e.name==="AbortError") return; // usuário cancelou a escolha, não faz nada
+// qualquer outro erro cai no método padrão abaixo
+}
+}
+
+// Método padrão (celular e navegadores sem essa opção de escolher pasta)
+let blob=new Blob([conteudo],{type:"application/json"});
+let url=URL.createObjectURL(blob);
+let a=document.createElement("a");
+a.href=url;
+a.download=nomeArquivo;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+URL.revokeObjectURL(url);
+
+mostrarModalPedidoPro(`Backup gerado com sucesso!\n\nGeralmente ele fica salvo na pasta "Downloads" do seu celular ou computador. Você pode compartilhá-lo a partir de lá, do gerenciador de arquivos, ou pelas notificações de download.`,"💾");
+}
+
+async function importarBackup(event){
+let arquivo=event.target.files[0];
+if(!arquivo) return;
+
+let leitor=new FileReader();
+leitor.onload=async function(e){
+let dados;
+try{
+dados=JSON.parse(e.target.result);
+}catch(err){
+mostrarModalPedidoPro("Arquivo inválido. Selecione um backup .json gerado pelo próprio app.","⚠️");
+return;
+}
+
+if(!await confirmarPedidoPro("Isso vai substituir TODOS os dados atuais do aplicativo pelos dados desse backup. Continuar?")) {
+arquivoBackup.value="";
+return;
+}
+
+clientes=dados.clientes||[];
+categorias=dados.categorias||[];
+pedidos=dados.pedidos||[];
+lojas=dados.lojas||[];
+produtos=dados.produtos||[];
+produtosCarregados=dados.produtosCarregados||false;
+trocas=dados.trocas||[];
+proximoNumeroTroca=dados.proximoNumeroTroca||1;
+demandas=dados.demandas||[];
+agendamentos=dados.agendamentos||[];
+proximoNumeroDemandaPorRede=dados.proximoNumeroDemandaPorRede||{};
+ocorrencias=dados.ocorrencias||[];
+proximoNumeroOcorrenciaPorRede=dados.proximoNumeroOcorrenciaPorRede||{};
+simuladosVolume=dados.simuladosVolume||[];
+
+save();
+mostrarModalPedidoPro("Backup restaurado com sucesso!","💾");
+arquivoBackup.value="";
+show("menu");
+};
+leitor.readAsText(arquivo);
+}
+
+/* =========================================================
+   CADASTRO DE REDE (antigo "Clientes" - mesma lógica, nome alterado)
+   ========================================================= */
+function salvarCliente(){
+let nome=nomeCliente.value.trim();
+if(!nome) return;
+clientes.push({nome});
+save();
+nomeCliente.value="";
+renderClientesPainel();
+}
+
+function renderClientesPainel(){
+listaClientesPainel.innerHTML="";
+clientes.forEach((c,i)=>{
+let mesAtual=new Date().toISOString().slice(0,7);
+let orcAtual=(c.orcamentos && c.orcamentos[mesAtual]) || null;
+listaClientesPainel.innerHTML+=`
+<div class="card">${c.nome}
+${orcAtual?`<br>💰 Orçamento deste mês: R$ ${fmtMoeda(orcAtual)}`:`<br><span style="color:#999">Sem orçamento cadastrado este mês</span>`}<br>
+<button class="pequeno editar" onclick="abrirOrcamentoRede(${i})">💰 Orçamento</button>
+<button class="pequeno excluir" onclick="excluirRede(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+async function excluirRede(i){
+let nome=clientes[i].nome;
+let temLojas = lojas.some(l=>l.rede===nome);
+if(temLojas && !await confirmarPedidoPro("Essa rede possui lojas cadastradas. Excluir mesmo assim?")) return;
+clientes.splice(i,1);
+save();
+renderClientesPainel();
+}
+
+/* =========================================================
+   ORÇAMENTO DA REDE
+   ========================================================= */
+function abrirOrcamentoRede(i){
+orcamentoRedeIndex=i;
+let rede=clientes[i];
+
+orcamentoRedeNome.innerText=rede.nome;
+orcamentoMes.value=new Date().toISOString().slice(0,7);
+orcamentoValor.value="";
+
+show("orcamentoRede");
+renderOrcamentosPainel();
+}
+
+function salvarOrcamento(){
+if(orcamentoRedeIndex===null) return;
+
+let mes=orcamentoMes.value;
+let valor=parseMoeda(orcamentoValor.value);
+
+if(!mes){mostrarModalPedidoPro("Selecione o mês.","⚠️");return;}
+if(valor<=0){mostrarModalPedidoPro("Informe o valor do orçamento.","⚠️");return;}
+
+let rede=clientes[orcamentoRedeIndex];
+rede.orcamentos = rede.orcamentos || {};
+rede.orcamentos[mes]=valor;
+
+save();
+orcamentoValor.value="";
+renderOrcamentosPainel();
+}
+
+async function excluirOrcamento(mes){
+if(orcamentoRedeIndex===null) return;
+if(!await confirmarPedidoPro("Excluir o orçamento desse mês?")) return;
+
+let rede=clientes[orcamentoRedeIndex];
+if(rede.orcamentos) delete rede.orcamentos[mes];
+
+save();
+renderOrcamentosPainel();
+}
+
+function renderOrcamentosPainel(){
+if(orcamentoRedeIndex===null) return;
+let rede=clientes[orcamentoRedeIndex];
+let orcamentos=rede.orcamentos || {};
+
+let meses=Object.keys(orcamentos).sort().reverse();
+
+listaOrcamentosPainel.innerHTML="";
+if(meses.length===0){
+listaOrcamentosPainel.innerHTML="<div class='card'>Nenhum orçamento cadastrado ainda</div>";
+return;
+}
+
+meses.forEach(mes=>{
+let [ano,mesNum]=mes.split("-");
+let nomeMes=MESES[parseInt(mesNum,10)-1];
+listaOrcamentosPainel.innerHTML+=`
+<div class="card">
+<b>${nomeMes}/${ano}</b>: R$ ${fmtMoeda(orcamentos[mes])}
+<button class="pequeno excluir" onclick="excluirOrcamento('${mes}')">❌</button>
+</div>`;
+});
+}
+
+/* =========================================================
+   CADASTRO DE LOJA
+   ========================================================= */
+let lojaEditIndex=null;
+
+function abrirCadastroLoja(){
+lojaEditIndex=null;
+lojaRazaoSocial.value="";lojaCnpj.value="";lojaCidade.value="";
+
+if(clientes.length===0){
+lojaSemRede.classList.remove('hidden');
+lojaComRede.classList.add('hidden');
+return;
+}
+
+lojaSemRede.classList.add('hidden');
+lojaComRede.classList.remove('hidden');
+
+redeSelectLoja.innerHTML="";
+clientes.forEach((c,i)=>{
+redeSelectLoja.innerHTML+=`<option value="${i}">${c.nome}</option>`;
+});
+
+onChangeRedeLoja();
+}
+
+function onChangeRedeLoja(){
+lojaEditIndex=null;
+lojaRazaoSocial.value="";lojaCnpj.value="";lojaCidade.value="";
+renderLojasPainel();
+}
+
+function lojasDaRedeSelecionada(){
+let rede=clientes[redeSelectLoja.value];
+if(!rede) return [];
+return lojas.filter(l=>l.rede===rede.nome);
+}
+
+function renderLojasPainel(){
+let rede=clientes[redeSelectLoja.value];
+if(!rede) return;
+
+let lista = lojasDaRedeSelecionada();
+
+lojaSemRedeSelecionada.classList.toggle('hidden', lista.length>0);
+
+listaLojasPainel.innerHTML="";
+lista.forEach((l)=>{
+let i=lojas.indexOf(l);
+listaLojasPainel.innerHTML+=`
+<div class="card">
+<b>${l.razaoSocial}</b><br>
+CNPJ: ${l.cnpj}<br>
+Cidade: ${l.cidade}<br>
+<button class="pequeno editar" onclick="editarLoja(${i})">✏️ Editar</button>
+<button class="pequeno excluir" onclick="excluirLoja(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+function salvarLoja(){
+let rede=clientes[redeSelectLoja.value];
+if(!rede){mostrarModalPedidoPro("Cadastre uma rede primeiro.","⚠️");return;}
+
+let razaoSocial=lojaRazaoSocial.value.trim();
+let cnpj=lojaCnpj.value.trim();
+let cidade=lojaCidade.value.trim();
+
+if(!razaoSocial || !cnpj || !cidade){
+mostrarModalPedidoPro("Preencha Razão Social, CNPJ e Cidade.","⚠️");
+return;
+}
+
+if(lojaEditIndex!==null){
+lojas[lojaEditIndex].razaoSocial=razaoSocial;
+lojas[lojaEditIndex].cnpj=cnpj;
+lojas[lojaEditIndex].cidade=cidade;
+lojaEditIndex=null;
+}else{
+lojas.push({rede:rede.nome,razaoSocial,cnpj,cidade});
+}
+
+save();
+lojaRazaoSocial.value="";lojaCnpj.value="";lojaCidade.value="";
+renderLojasPainel();
+}
+
+function editarLoja(i){
+let l=lojas[i];
+lojaRazaoSocial.value=l.razaoSocial;
+lojaCnpj.value=l.cnpj;
+lojaCidade.value=l.cidade;
+lojaEditIndex=i;
+window.scrollTo(0,0);
+}
+
+async function excluirLoja(i){
+if(!await confirmarPedidoPro("Excluir essa loja?")) return;
+lojas.splice(i,1);
+save();
+renderLojasPainel();
+}
+
+/* =========================================================
+   CADASTRO DE PRODUTOS
+   ========================================================= */
+let produtoEditIndex=null;
+
+function abrirCadastroProdutos(){
+produtoEditIndex=null;
+produtoDescricao.value="";produtoCodBarras.value="";
+popularSelectCategorias();
+onChangeProdutoGrupoSelect();
+}
+
+// Posição de cada categoria na ordem definida em CATEGORIAS_PADRAO — categorias
+// criadas manualmente pelo usuário (que não estão nessa lista) vão pro final
+function ordemCategoria(nome){
+let idx=CATEGORIAS_PADRAO.findIndex(c=>c.nome===nome);
+return idx===-1?9999:idx;
+}
+
+function gruposUnicos(){
+let set=new Set();
+produtos.forEach(p=>{ if(p.grupo) set.add(p.grupo); });
+return Array.from(set).sort((a,b)=>ordemCategoria(a)-ordemCategoria(b));
+}
+
+function buscarQtdCategoria(nomeGrupo){
+let normalizado=(nomeGrupo||"").trim().toLowerCase();
+let cat=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===normalizado);
+return cat?cat.qtd:null;
+}
+
+function buscarKgCategoria(nomeGrupo){
+let normalizado=(nomeGrupo||"").trim().toLowerCase();
+let cat=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===normalizado);
+return cat&&cat.kg!=null?cat.kg:null;
+}
+
+function buscarCaixasPorPaleteCategoria(nomeGrupo){
+let normalizado=(nomeGrupo||"").trim().toLowerCase();
+let cat=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===normalizado);
+return cat&&cat.caixasPorPalete!=null?cat.caixasPorPalete:null;
+}
+
+function buscarM3Categoria(nomeGrupo){
+let normalizado=(nomeGrupo||"").trim().toLowerCase();
+let cat=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===normalizado);
+return cat&&cat.m3!=null?cat.m3:null;
+}
+
+// Busca peso/palete/m³ "efetivo" de um produto: usa o valor do PRÓPRIO produto se ele
+// tiver um cadastrado (caso de formatos diferentes na mesma categoria, tipo massas),
+// e cai no valor padrão da categoria quando o produto não tem override próprio.
+function buscarProdutoPorDescricao(descricao){
+return produtos.find(p=>p.descricao===descricao);
+}
+
+function kgEfetivo(descricaoProduto,nomeGrupo){
+let p=buscarProdutoPorDescricao(descricaoProduto);
+if(p && p.kg!=null) return p.kg;
+return buscarKgCategoria(nomeGrupo);
+}
+
+function caixasPorPaleteEfetivo(descricaoProduto,nomeGrupo){
+let p=buscarProdutoPorDescricao(descricaoProduto);
+if(p && p.caixasPorPalete!=null) return p.caixasPorPalete;
+return buscarCaixasPorPaleteCategoria(nomeGrupo);
+}
+
+function m3Efetivo(descricaoProduto,nomeGrupo){
+let p=buscarProdutoPorDescricao(descricaoProduto);
+if(p && p.m3!=null) return p.m3;
+return buscarM3Categoria(nomeGrupo);
+}
+
+function listaCategoriasCompleta(){
+let nomes=new Set();
+categorias.forEach(c=>{ if(c.nome) nomes.add(c.nome); });
+gruposUnicos().forEach(g=>nomes.add(g));
+return Array.from(nomes).sort((a,b)=>ordemCategoria(a)-ordemCategoria(b));
+}
+
+function popularSelectCategorias(nomeParaSelecionar){
+produtoGrupoSelect.innerHTML="";
+produtoGrupoSelect.innerHTML+=`<option value="">Selecione uma categoria...</option>`;
+produtoGrupoSelect.innerHTML+=`<option value="__NOVA__">➕ Nova categoria</option>`;
+
+let nomes=listaCategoriasCompleta();
+nomes.forEach(nome=>{
+let qtd=buscarQtdCategoria(nome);
+let label=qtd?nome:`${nome} ⚠️ sem qtd`;
+produtoGrupoSelect.innerHTML+=`<option value="${nome}">${label}</option>`;
+});
+
+if(nomeParaSelecionar && nomes.includes(nomeParaSelecionar)){
+produtoGrupoSelect.value=nomeParaSelecionar;
+}else{
+produtoGrupoSelect.value="";
+}
+}
+
+function mostrarFormNovoProduto(){
+if(!produtoGrupoSelect.value){
+mostrarModalPedidoPro("Selecione (ou crie) uma categoria primeiro.","⚠️");
+return;
+}
+produtoDescricao.value="";
+produtoCodBarras.value="";
+produtoKgCaixa.value="";
+produtoCaixasPorPalete.value="";
+produtoM3Caixa.value="";
+formNovoProduto.classList.remove("hidden");
+produtoDescricao.focus();
+}
+
+function onChangeProdutoGrupoSelect(){
+formNovoProduto.classList.add("hidden");
+let selecao=produtoGrupoSelect.value;
+
+if(selecao===""){
+novaCategoriaNome.classList.add("hidden");
+produtoQtdCaixa.value="";
+btnExcluirCategoria.classList.add("hidden");
+}else if(selecao==="__NOVA__"){
+novaCategoriaNome.classList.remove("hidden");
+novaCategoriaNome.value="";
+produtoQtdCaixa.value="";
+btnExcluirCategoria.classList.add("hidden");
+novaCategoriaNome.focus();
+}else{
+novaCategoriaNome.classList.add("hidden");
+produtoQtdCaixa.value=buscarQtdCategoria(selecao)||"";
+btnExcluirCategoria.classList.remove("hidden");
+}
+
+renderProdutosDaCategoria();
+}
+
+function salvarQtdCategoria(nomeGrupo,qtd,kg,caixasPorPalete,m3){
+let normalizado=nomeGrupo.trim().toLowerCase();
+let cat=categorias.find(c=>c.nome && c.nome.trim().toLowerCase()===normalizado);
+if(cat){
+if(qtd) cat.qtd=qtd;
+if(kg) cat.kg=kg;
+if(caixasPorPalete) cat.caixasPorPalete=caixasPorPalete;
+if(m3) cat.m3=m3;
+}else{
+categorias.push({nome:nomeGrupo,qtd:qtd||1,kg:kg||null,caixasPorPalete:caixasPorPalete||null,m3:m3||null});
+}
+}
+
+function atualizarSoACategoria(){
+let selecao=produtoGrupoSelect.value;
+let grupo=selecao==="__NOVA__" ? novaCategoriaNome.value.trim() : selecao;
+
+if(!grupo){mostrarModalPedidoPro("Selecione uma categoria (ou digite o nome de uma nova) antes de atualizar.","⚠️");return;}
+
+let qtdCaixa=parseInt(produtoQtdCaixa.value,10)||0;
+let kgCaixa=parseMoeda(produtoKgCaixa.value)||0;
+let caixasPorPalete=parseInt(produtoCaixasPorPalete.value,10)||0;
+let m3Caixa=parseMoeda(produtoM3Caixa.value)||0;
+
+if(!qtdCaixa && !kgCaixa && !caixasPorPalete && !m3Caixa){
+mostrarModalPedidoPro("Preencha ao menos um dos campos (quantidade por caixa, peso, caixas por palete ou m³) pra atualizar.","⚠️");
+return;
+}
+
+salvarQtdCategoria(grupo,qtdCaixa>0?qtdCaixa:null,kgCaixa>0?kgCaixa:null,caixasPorPalete>0?caixasPorPalete:null,m3Caixa>0?m3Caixa:null);
+save();
+popularSelectCategorias(grupo);
+onChangeProdutoGrupoSelect();
+mostrarModalPedidoPro(`Categoria "${grupo}" atualizada!`,"💾");
+}
+
+async function excluirCategoriaSelecionada(){
+let nome=produtoGrupoSelect.value;
+if(nome==="__NOVA__") return;
+
+let produtosDaCategoria=produtos.filter(p=>p.grupo===nome);
+
+if(produtosDaCategoria.length>0){
+if(!await confirmarPedidoPro(`A categoria "${nome}" tem ${produtosDaCategoria.length} produto(s) cadastrado(s).\n\nExcluir a categoria também vai excluir esses produtos. Deseja continuar?`)) return;
+produtos=produtos.filter(p=>p.grupo!==nome);
+}else{
+if(!await confirmarPedidoPro(`Excluir a categoria "${nome}"?`)) return;
+}
+
+let normalizado=nome.trim().toLowerCase();
+categorias=categorias.filter(c=>!(c.nome && c.nome.trim().toLowerCase()===normalizado));
+
+save();
+popularSelectCategorias();
+onChangeProdutoGrupoSelect();
+mostrarModalPedidoPro(`Categoria "${nome}" excluída.`,"🗑️");
+}
+
+async function salvarProduto(){
+let selecao=produtoGrupoSelect.value;
+let grupo=selecao==="__NOVA__" ? novaCategoriaNome.value.trim() : selecao;
+let descricao=produtoDescricao.value.trim();
+let codbarras=produtoCodBarras.value.trim();
+let qtdCaixa=parseInt(produtoQtdCaixa.value,10)||0;
+let kgCaixa=parseMoeda(produtoKgCaixa.value)||0;
+let caixasPorPalete=parseInt(produtoCaixasPorPalete.value,10)||0;
+let m3Caixa=parseMoeda(produtoM3Caixa.value)||0;
+
+if(!grupo){mostrarModalPedidoPro("Selecione uma categoria ou digite o nome da nova categoria.","⚠️");return;}
+if(!descricao){mostrarModalPedidoPro("Preencha a descrição do produto.","⚠️");return;}
+
+if(codbarras){
+let jaExiste=produtos.find((p,i)=>p.codbarras && p.codbarras.trim()===codbarras && i!==produtoEditIndex);
+if(jaExiste){
+if(!await confirmarPedidoPro(`Atenção: esse código de barras já está cadastrado no produto "${jaExiste.descricao}".\n\nO leitor de código de barras vai confundir os dois produtos se você continuar.\n\nSalvar mesmo assim?`)) return;
+}
+}
+
+let novoProduto={grupo,descricao,codbarras};
+if(kgCaixa>0) novoProduto.kg=kgCaixa;
+if(caixasPorPalete>0) novoProduto.caixasPorPalete=caixasPorPalete;
+if(m3Caixa>0) novoProduto.m3=m3Caixa;
+
+if(produtoEditIndex!==null){
+produtos[produtoEditIndex]=novoProduto;
+produtoEditIndex=null;
+}else{
+produtos.push(novoProduto);
+}
+
+if(qtdCaixa>0){
+salvarQtdCategoria(grupo,qtdCaixa);
+}
+
+save();
+produtoDescricao.value="";produtoCodBarras.value="";
+produtoKgCaixa.value="";produtoCaixasPorPalete.value="";produtoM3Caixa.value="";
+popularSelectCategorias(grupo);
+onChangeProdutoGrupoSelect();
+}
+
+async function excluirProduto(i){
+if(!await confirmarPedidoPro("Excluir esse produto?")) return;
+produtos.splice(i,1);
+save();
+popularSelectCategorias(produtoGrupoSelect.value);
+renderProdutosDaCategoria();
+}
+
+function renderProdutosDaCategoria(){
+let selecao=produtoGrupoSelect.value;
+listaProdutosDaCategoria.innerHTML="";
+
+if(!selecao || selecao==="__NOVA__"){
+return;
+}
+
+let indices=[];
+produtos.forEach((p,i)=>{ if(p.grupo===selecao) indices.push(i); });
+
+if(indices.length===0){
+listaProdutosDaCategoria.innerHTML="<div class='card'>Nenhum produto cadastrado nessa categoria ainda.</div>";
+return;
+}
+
+indices.forEach(i=>{
+let p=produtos[i];
+let kgMostrar=kgEfetivo(p.descricao,selecao);
+let paleteMostrar=caixasPorPaleteEfetivo(p.descricao,selecao);
+let m3Mostrar=m3Efetivo(p.descricao,selecao);
+listaProdutosDaCategoria.innerHTML+=`
+<div class="card">
+<div style="font-size:13px;color:#666;">Descrição</div>
+<input id="prodInlineDesc_${i}" value="${(p.descricao||"").replace(/"/g,"&quot;")}">
+<div style="font-size:13px;color:#666;">Código de Barras</div>
+<input id="prodInlineCod_${i}" value="${(p.codbarras||"").replace(/"/g,"&quot;")}">
+<div style="font-size:13px;color:#666;">Peso Bruto (KG)</div>
+<input id="prodInlineKg_${i}" value="${kgMostrar!=null?kgMostrar:""}" inputmode="decimal">
+<div style="font-size:13px;color:#666;">Caixas por Palete</div>
+<input id="prodInlinePalete_${i}" value="${paleteMostrar!=null?paleteMostrar:""}" inputmode="numeric">
+<div style="font-size:13px;color:#666;">Volume (m³)</div>
+<input id="prodInlineM3_${i}" value="${m3Mostrar!=null?m3Mostrar:""}" inputmode="decimal">
+<button class="pequeno" onclick="salvarProdutoInline(${i})">💾 Salvar</button>
+<button class="pequeno excluir" onclick="excluirProduto(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+async function salvarProdutoInline(i){
+let p=produtos[i];
+let descricao=document.getElementById(`prodInlineDesc_${i}`).value.trim();
+let codbarras=document.getElementById(`prodInlineCod_${i}`).value.trim();
+let kg=parseMoeda(document.getElementById(`prodInlineKg_${i}`).value)||0;
+let palete=parseInt(document.getElementById(`prodInlinePalete_${i}`).value,10)||0;
+let m3=parseMoeda(document.getElementById(`prodInlineM3_${i}`).value)||0;
+
+if(!descricao){mostrarModalPedidoPro("A descrição não pode ficar vazia.","⚠️");return;}
+
+if(codbarras){
+let jaExiste=produtos.find((pp,idx)=>pp.codbarras && pp.codbarras.trim()===codbarras && idx!==i);
+if(jaExiste){
+if(!await confirmarPedidoPro(`Atenção: esse código de barras já está cadastrado no produto "${jaExiste.descricao}".\n\nSalvar mesmo assim?`)) return;
+}
+}
+
+p.descricao=descricao;
+p.codbarras=codbarras;
+if(kg>0){ p.kg=kg; } else { delete p.kg; }
+if(palete>0){ p.caixasPorPalete=palete; } else { delete p.caixasPorPalete; }
+if(m3>0){ p.m3=m3; } else { delete p.m3; }
+
+save();
+mostrarModalPedidoPro("Produto atualizado!","💾");
+renderProdutosDaCategoria();
+}
+
+/* =========================================================
+   SELECT CLIENTE (REDE) NO NOVO PEDIDO - ORIGINAL, NÃO ALTERADO
+   ========================================================= */
+function carregarClientesSelect(){
+clienteSelect.innerHTML="";
+clientes.forEach((c,i)=>{
+clienteSelect.innerHTML+=`<option value="${i}">${c.nome}</option>`;
+});
+}
+
+// INICIAR PEDIDO
+function iniciarPedido(){
+clienteAtual=clientes[clienteSelect.value];
+dataAtual=dataPedido.value || new Date().toISOString().split("T")[0];
+pedidoEditIndex=null;
+pedidoAtual=[];
+valorEncarte.value="";
+infoPedido.innerHTML=montarInfoPedido();
+show("pedido");
+}
+
+function montarInfoPedido(sufixo){
+let mesPedido=dataAtual.slice(0,7);
+let orcamento=(clienteAtual.orcamentos && clienteAtual.orcamentos[mesPedido]) || null;
+
+let html=`Rede: ${clienteAtual.nome} | Data: ${formatarData(dataAtual)}`;
+if(sufixo) html+=` ${sufixo}`;
+html+= orcamento
+? `<br>💰 Orçamento do mês: R$ ${fmtMoeda(orcamento)}`
+: `<br><span style="color:#999">Sem orçamento cadastrado pra esse mês</span>`;
+return html;
+}
+
+// CATEGORIAS
+function carregarCategorias(){
+categoriaSelect.innerHTML="";
+let indices=categorias.map((c,i)=>i).sort((a,b)=>ordemCategoria(categorias[a].nome)-ordemCategoria(categorias[b].nome));
+indices.forEach(i=>{
+categoriaSelect.innerHTML+=`<option value="${i}">${categorias[i].nome}</option>`;
+});
+onChangeCategoriaPedido();
+}
+
+function zerarCalculosTempoReal(){
+calculos.innerHTML=`
+📦 Total de caixas: 0<br>
+🎁 Caixas bonificadas: 0.00<br>
+💲 Preço em nota: R$ 0.00<br>
+🔥 Preço c/ bonificação:<br>
+➡️ Real: R$ 0.0000<br>
+➡️ Arredondado: R$ 0.00<br><br>
+💰 Total: R$ 0.00<br>
+📉 Diferença: R$ 0.00
+`;
+}
+
+function onChangeCategoriaPedido(){
+let cat=categorias[categoriaSelect.value];
+produtoSelectPedido.innerHTML="";
+if(cat){
+produtos.forEach((p,i)=>{
+if(p.grupo===cat.nome){
+produtoSelectPedido.innerHTML+=`<option value="${i}">${p.descricao}</option>`;
+}
+});
+}
+valorUnit.value="";
+bonificacao.value="";
+qtdCaixaPedido.value="";
+zerarCalculosTempoReal();
+renderHistoricoCategoria();
+render();
+}
+
+// HISTÓRICO
+function renderHistoricoCategoria(){
+let div=historicoCategoria;
+div.innerHTML="";
+
+if(!clienteAtual) return;
+
+let cat=categorias[categoriaSelect.value];
+if(!cat) return;
+
+let hist = pedidos
+.filter(p=>p.cliente===clienteAtual.nome)
+.flatMap(p=>p.itens.map(i=>({data:p.data,item:i})))
+.filter(x=>x.item.categoria===cat.nome)
+.slice(-3).reverse();
+
+if(hist.length===0){
+div.innerHTML="<div class='card'>Sem histórico</div>";
+return;
+}
+
+hist.forEach(h=>{
+let unitBon=h.item.val/(1+h.item.bon/100);
+let cxBon=h.item.cx*(h.item.bon/100);
+
+div.innerHTML+=`
+<div class="historico-card">
+<b>${formatarData(h.data)}</b><br>
+📦 ${h.item.cx} cx<br>
+🎁 ${cxBon.toFixed(2)} cx<br>
+💲 Nota: ${h.item.val.toFixed(2)}<br>
+🔥 C/ Bonif: ${unitBon.toFixed(2)}<br>
+📊 ${h.item.bon}%
+</div>`;
+});
+}
+
+// TEMPO REAL
+document.addEventListener("input",(evento)=>{
+let c=categorias[categoriaSelect.value];
+if(!c) return;
+
+// Se o usuário mudar o Preço ou a Bonificação, aplica retroativamente
+// em todos os sabores já adicionados dessa categoria (eles são digitados uma vez só)
+if(evento.target && (evento.target.id==="valorUnit" || evento.target.id==="bonificacao")){
+let novoVal=parse(valorUnit.value);
+let novoBon=parse(bonificacao.value);
+let mudou=false;
+pedidoAtual.forEach(p=>{
+if(p.categoria===c.nome){
+p.val=novoVal;
+p.bon=novoBon;
+mudou=true;
+}
+});
+if(mudou) render();
+}
+
+let cx=parseInt(qtdCaixaPedido.value)||0;
+let val=parse(valorUnit.value);
+let bon=parse(bonificacao.value);
+
+let precoFinalReal = val / (1+bon/100);       // preço final exibido (mesma conta da calculadora)
+let unitBon = precoFinalReal.toFixed(2);
+
+// Soma tudo que já foi adicionado nessa categoria...
+let cxTotal=0,cxBonTotal=0,valorTotal=0,valorDifTotal=0;
+pedidoAtual.forEach(p=>{
+if(p.categoria===c.nome){
+let unItem=p.cx*p.un;
+cxTotal+=p.cx;
+cxBonTotal+=p.cx*(p.bon/100);
+valorTotal+=unItem*p.val;
+valorDifTotal+=unItem*p.val*(p.bon/100);
+}
+});
+
+// ...mais o sabor que está sendo digitado agora (ainda não clicou em Adicionar)
+if(cx>0){
+let unPendente=cx*c.qtd;
+cxTotal+=cx;
+cxBonTotal+=cx*(bon/100);
+valorTotal+=unPendente*val;
+valorDifTotal+=unPendente*val*(bon/100);
+}
+
+let valorBonTotal=valorTotal; // a empresa envia as caixas bonificadas ao mesmo preço de nota
+let diferencaTotal=valorDifTotal;
+
+calculos.innerHTML=`
+📦 Total de caixas: ${cxTotal}<br>
+🎁 Caixas bonificadas: ${cxBonTotal.toFixed(2)}<br>
+💲 Preço em nota: R$ ${val.toFixed(2)}<br>
+🔥 Preço c/ bonificação:<br>
+➡️ Real: R$ ${precoFinalReal.toFixed(4)}<br>
+➡️ Arredondado: R$ ${unitBon}<br><br>
+💰 Total: R$ ${valorTotal.toFixed(2)}<br>
+📉 Diferença: R$ ${diferencaTotal.toFixed(2)}
+`;
+});
+
+// ADD ITEM
+function addItem(){
+let c=categorias[categoriaSelect.value];
+let p=produtos[produtoSelectPedido.value];
+
+pedidoAtual.push({
+categoria:c.nome,
+produto:p?p.descricao:"",
+cx:parseInt(qtdCaixaPedido.value)||0,
+val:parse(valorUnit.value),
+bon:parse(bonificacao.value),
+un:c.qtd
+});
+
+render();
+
+qtdCaixaPedido.value="";
+zerarCalculosTempoReal();
+}
+
+// RENDER
+function render(){
+itens.innerHTML="";
+let total=0,totalBon=0,difTotal=0;
+let totalCxPedido=0,totalKgPedido=0,totalPaletesPedido=0,totalM3Pedido=0,algumSemDadosVolume=false;
+
+// Agrupa os itens por categoria, na ordem em que cada categoria apareceu primeiro
+let ordemCategorias=[];
+let porCategoria={};
+pedidoAtual.forEach((p,i)=>{
+if(!porCategoria[p.categoria]){
+porCategoria[p.categoria]=[];
+ordemCategorias.push(p.categoria);
+}
+porCategoria[p.categoria].push(i);
+});
+
+ordemCategorias.forEach(nomeCategoria=>{
+let indicesDaCategoria=porCategoria[nomeCategoria];
+let cxCategoria=0,valorCategoria=0,cxBonCategoria=0,difCategoria=0;
+
+let htmlItensCategoria="";
+
+indicesDaCategoria.forEach(i=>{
+let p=pedidoAtual[i];
+let unitBonReal = p.val * (1-p.bon/100);
+let unitBon = unitBonReal.toFixed(2);
+
+let un=p.cx*p.un;
+let t=un*p.val;
+let tb=t; // caixas bonificadas saem ao mesmo preço de nota
+let cxBon=p.cx*(p.bon/100);
+
+total+=t;
+totalBon+=tb;
+difTotal+=t*(p.bon/100);
+cxCategoria+=p.cx;
+cxBonCategoria+=cxBon;
+valorCategoria+=t;
+difCategoria+=t*(p.bon/100);
+
+totalCxPedido+=p.cx;
+let kgCat=kgEfetivo(p.produto,p.categoria);
+let paleteCat=caixasPorPaleteEfetivo(p.produto,p.categoria);
+let m3Cat=m3Efetivo(p.produto,p.categoria);
+if(kgCat && paleteCat){
+totalKgPedido+=p.cx*kgCat;
+totalPaletesPedido+=p.cx/paleteCat;
+}else{
+algumSemDadosVolume=true;
+}
+if(m3Cat){
+totalM3Pedido+=p.cx*m3Cat;
+}
+
+htmlItensCategoria+=`
+<div class="card">
+${p.produto||p.categoria} — ${p.cx} cx
+<button class="pequeno excluir" onclick="pedidoAtual.splice(${i},1);render()">❌</button>
+</div>`;
+});
+
+let precoCategoria=indicesDaCategoria.length?pedidoAtual[indicesDaCategoria[0]].val:0;
+let bonifCategoria=indicesDaCategoria.length?pedidoAtual[indicesDaCategoria[0]].bon:0;
+let precoComBonifCategoria=precoCategoria/(1+bonifCategoria/100);
+
+itens.innerHTML+=`
+<h4>${nomeCategoria}</h4>
+<div class="card">
+📦 Total de Caixas: ${cxCategoria}<br>
+🎁 Caixas Bonificadas: ${cxBonCategoria.toFixed(2)}<br>
+💲 Preço em Nota: R$ ${precoCategoria.toFixed(2)}<br>
+🔥 Preço c/ Bonificação:<br>
+➡️ Real: R$ ${precoComBonifCategoria.toFixed(4)}<br>
+➡️ Arredondado: R$ ${precoComBonifCategoria.toFixed(2)}<br>
+📊 Bonificação: ${bonifCategoria}%<br>
+💰 Total: R$ ${valorCategoria.toFixed(2)}<br>
+📉 Diferença: R$ ${difCategoria.toFixed(2)}
+</div>
+${htmlItensCategoria}`;
+});
+
+let custoEncarte=(typeof valorEncarte!=="undefined" && valorEncarte)?parseMoeda(valorEncarte.value):0;
+let diferenca=difTotal;
+let media = total>0 ? ((diferenca+custoEncarte)/total*100) : 0;
+
+totais.innerHTML=`
+💰 Total: R$ ${total.toFixed(2)}<br>
+📉 Diferença: R$ ${diferenca.toFixed(2)}<br>
+${custoEncarte>0?`🗞️ Encarte: R$ ${fmtMoeda(custoEncarte)}<br>`:""}
+📊 Média bonificação${custoEncarte>0?" (c/ encarte)":""}: ${media.toFixed(2)}%
+`;
+
+if(totalCxPedido>0){
+totaisVolumePedido.innerHTML=`
+📦 Total de Caixas: ${totalCxPedido}<br>
+⚖️ Peso Bruto Total: ${totalKgPedido.toFixed(2)} kg<br>
+🚚 Total de Paletes: ${totalPaletesPedido.toFixed(2)}<br>
+📐 Volume Total: ${totalM3Pedido.toFixed(3)} m³
+${algumSemDadosVolume?`<br><span style="color:#999;font-size:14px;">⚠️ Alguma categoria sem peso bruto/palete cadastrado não entrou nessa conta.</span>`:""}
+`;
+}else{
+totaisVolumePedido.innerHTML="";
+}
+
+let categoriaAtual=categorias[categoriaSelect.value];
+if(categoriaAtual){
+let cxDaCategoriaAtual=0,valorDaCategoriaAtual=0;
+pedidoAtual.forEach(p=>{
+if(p.categoria===categoriaAtual.nome){
+cxDaCategoriaAtual+=p.cx;
+valorDaCategoriaAtual+=p.cx*p.un*p.val;
+}
+});
+subtotalCategoriaAtual.innerHTML=`${categoriaAtual.nome}<br>${cxDaCategoriaAtual} cx &nbsp;|&nbsp; R$ ${valorDaCategoriaAtual.toFixed(2)}`;
+}else{
+subtotalCategoriaAtual.innerHTML="";
+}
+}
+
+/* =========================================================
+   PLANO DE NEGÓCIO
+   ========================================================= */
+let planoOrcamentoAtual=null;
+let planoPercentualNegociacaoFixo=0;
+
+function abrirPlanoNegocio(){
+if(!clienteAtual || pedidoAtual.length===0){
+mostrarModalPedidoPro("Monte o pedido antes de gerar o plano de negócio.","⚠️");
+return;
+}
+
+let total=0,diferenca=0;
+pedidoAtual.forEach(p=>{
+let un=p.cx*p.un;
+total+=un*p.val;
+diferenca+=un*p.val*(p.bon/100);
+});
+let custoEncarte=parseMoeda(valorEncarte.value);
+let verba=diferenca+custoEncarte;
+
+planoPercentualNegociacaoFixo=total>0?((diferenca+custoEncarte)/total*100):0;
+
+let u=usuarioAtivo();
+planoVendedorNome.innerText=u?u.nome:"-";
+
+buscaLojaPlano.value="";
+planoCliente.value="";
+planoCnpj.value="";
+planoCanal.value="HIPER/SUPER";
+planoPercentualPolitica.value="";
+planoContratoRede.value="Não possui";
+planoJbp.value="Não";
+planoArea.value="Manutenção/Ataque";
+planoAreaPersonalizada.value="";
+planoAreaPersonalizada.classList.add("hidden");
+planoMotivo.value="";
+planoContrapartida.value="";
+
+planoValorPedido.value=formatarMoeda(total);
+planoValorVerba.value=formatarMoeda(verba);
+
+let mesPedido=dataAtual.slice(0,7);
+planoOrcamentoAtual=(clienteAtual.orcamentos && clienteAtual.orcamentos[mesPedido])||null;
+planoOrcamentoInfo.innerHTML=planoOrcamentoAtual
+?`💰 Orçamento do mês: R$ ${fmtMoeda(planoOrcamentoAtual)}`
+:`<span style="color:#999">Sem orçamento cadastrado pra esse mês</span>`;
+
+renderListaLojasPlano();
+calcularExcedentePolitica();
+show("planoNegocio");
+}
+
+function renderListaLojasPlano(){
+let filtro=(buscaLojaPlano.value||"").toLowerCase();
+let lista=lojas.filter(l=>l.rede===clienteAtual.nome).filter(l=>{
+if(!filtro) return true;
+return l.razaoSocial.toLowerCase().includes(filtro) ||
+l.cnpj.toLowerCase().includes(filtro) ||
+l.cidade.toLowerCase().includes(filtro);
+});
+
+listaLojasPlano.innerHTML="";
+lista.forEach(l=>{
+listaLojasPlano.innerHTML+=`
+<div class="card" onclick="selecionarLojaPlano('${l.cnpj.replace(/'/g,"\\'")}')">
+<b>${l.razaoSocial}</b><br>CNPJ: ${l.cnpj}<br>Cidade: ${l.cidade}
+</div>`;
+});
+}
+
+function selecionarLojaPlano(cnpj){
+let loja=lojas.find(l=>l.cnpj===cnpj && l.rede===clienteAtual.nome);
+if(!loja) return;
+planoCliente.value=loja.razaoSocial;
+planoCnpj.value=loja.cnpj;
+}
+
+function onChangePlanoArea(){
+if(planoArea.value==="__OUTRA__"){
+planoAreaPersonalizada.classList.remove("hidden");
+planoAreaPersonalizada.focus();
+}else{
+planoAreaPersonalizada.classList.add("hidden");
+}
+}
+
+function valorPlanoArea(){
+return planoArea.value==="__OUTRA__" ? (planoAreaPersonalizada.value.trim()||"-") : planoArea.value;
+}
+
+function calcularExcedentePolitica(){
+let pedido=parseMoeda(planoValorPedido.value);
+let verba=parseMoeda(planoValorVerba.value);
+let percNegociacao=planoPercentualNegociacaoFixo;
+let percPolitica=parseMoeda(planoPercentualPolitica.value);
+let excedente=percNegociacao-percPolitica;
+
+planoResultadoPercentuais.innerHTML=`
+📊 Percentual de Negociação: <b>${fmt2(percNegociacao)}%</b><br>
+📐 Excedente da Política: <b>${fmt2(excedente)}</b>
+`;
+
+return {pedido,verba,percNegociacao,percPolitica,excedente};
+}
+
+function gerarTextoPlano(){
+let r=calcularExcedentePolitica();
+
+let texto=`PLANO DE NEGÓCIO – TRADE\n`;
+texto+=`Vendedor: ${planoVendedorNome.innerText}\n`;
+texto+=`Cliente: ${planoCliente.value}\n`;
+texto+=`CNPJ: ${planoCnpj.value}\n`;
+texto+=`Canal: ${planoCanal.value}\n`;
+texto+=`DADOS DA NEGOCIAÇÃO\n`;
+texto+=`• Orçamento: R$ ${planoOrcamentoAtual?fmtMoeda(planoOrcamentoAtual):"-"}\n`;
+texto+=`• Valor do Pedido: R$ ${fmtMoeda(r.pedido)}\n`;
+texto+=`• Valor da Verba: R$ ${fmtMoeda(r.verba)}\n`;
+texto+=`• Percentual de Negociação: ${fmt2(r.percNegociacao)}%\n`;
+texto+=`• Percentual de Política: ${fmt2(r.percPolitica)}%\n`;
+texto+=`• Excedente da Política: ${fmt2(r.excedente)}\n`;
+texto+=`• Contrato + Rede: ${planoContratoRede.value}\n`;
+texto+=`• JBP: ${planoJbp.value}\n`;
+texto+=`MOTIVO DA AÇÃO\n`;
+texto+=`${planoMotivo.value.trim()||"-"}\n`;
+texto+=`CONTRAPARTIDA\n`;
+let linhasContrapartida=(planoContrapartida.value||"").split("\n").map(l=>l.trim()).filter(l=>l);
+if(linhasContrapartida.length===0){
+texto+=`-\n`;
+}else{
+linhasContrapartida.forEach(l=>{ texto+=`• ${l}\n`; });
+}
+texto+=`ÁREA\n`;
+texto+=`• ${valorPlanoArea()}`;
+
+copiarTexto(texto);
+}
+
+function gerarPdfPlano(){
+let r=calcularExcedentePolitica();
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let y=15;
+
+doc.setFontSize(14);
+doc.text("PLANO DE NEGÓCIO – TRADE",105,y,{align:"center"});
+y+=12;
+
+doc.setFontSize(11);
+doc.text(`Vendedor: ${planoVendedorNome.innerText}`,15,y); y+=7;
+doc.text(`Cliente: ${planoCliente.value}`,15,y); y+=7;
+doc.text(`CNPJ: ${planoCnpj.value}`,15,y); y+=7;
+doc.text(`Canal: ${planoCanal.value}`,15,y); y+=10;
+
+doc.setFont(undefined,'bold');
+doc.text("DADOS DA NEGOCIAÇÃO",15,y); y+=8;
+doc.setFont(undefined,'normal');
+doc.text(`• Orçamento: R$ ${planoOrcamentoAtual?fmtMoeda(planoOrcamentoAtual):"-"}`,15,y); y+=7;
+doc.text(`• Valor do Pedido: R$ ${fmtMoeda(r.pedido)}`,15,y); y+=7;
+doc.text(`• Valor da Verba: R$ ${fmtMoeda(r.verba)}`,15,y); y+=7;
+doc.text(`• Percentual de Negociação: ${fmt2(r.percNegociacao)}%`,15,y); y+=7;
+doc.text(`• Percentual de Política: ${fmt2(r.percPolitica)}%`,15,y); y+=7;
+doc.text(`• Excedente da Política: ${fmt2(r.excedente)}`,15,y); y+=7;
+doc.text(`• Contrato + Rede: ${planoContratoRede.value}`,15,y); y+=7;
+doc.text(`• JBP: ${planoJbp.value}`,15,y); y+=10;
+
+if(y>250){doc.addPage();y=15;}
+
+doc.setFont(undefined,'bold');
+doc.text("MOTIVO DA AÇÃO",15,y); y+=8;
+doc.setFont(undefined,'normal');
+let linhasMotivo=doc.splitTextToSize(planoMotivo.value.trim()||"-",180);
+doc.text(linhasMotivo,15,y);
+y+=linhasMotivo.length*6+8;
+
+if(y>250){doc.addPage();y=15;}
+
+doc.setFont(undefined,'bold');
+doc.text("CONTRAPARTIDA",15,y); y+=8;
+doc.setFont(undefined,'normal');
+let linhasContrapartida=(planoContrapartida.value||"").split("\n").map(l=>l.trim()).filter(l=>l);
+if(linhasContrapartida.length===0){
+doc.text("-",15,y); y+=7;
+}else{
+linhasContrapartida.forEach(l=>{
+let quebradas=doc.splitTextToSize(`• ${l}`,180);
+doc.text(quebradas,15,y);
+y+=quebradas.length*6+2;
+});
+y+=2;
+}
+
+if(y>260){doc.addPage();y=15;}
+
+doc.setFont(undefined,'bold');
+doc.text("ÁREA",15,y); y+=8;
+doc.setFont(undefined,'normal');
+doc.text(`• ${valorPlanoArea()}`,15,y);
+
+let nomeArquivo=`Plano_${(planoCliente.value||"cliente").replace(/[^a-zA-Z0-9]/g,"_")}_${dataAtual}.pdf`;
+abrirPdf(doc,nomeArquivo);
+}
+
+// GERAR TEXTO
+function gerarTexto(){
+copiarTexto(gerarTextoPadrao({cliente:clienteAtual.nome,data:dataAtual,itens:pedidoAtual,valorEncarte:parseMoeda(valorEncarte.value)}));
+}
+
+// TEXTO PADRÃO (COM CX BONIFICADA)
+function gerarTextoPadrao(p){
+let texto=`Cliente: ${p.cliente}\nData: ${formatarData(p.data)}\n\n`;
+
+let total=0,totalBon=0,difTotal=0;
+
+let ordemCategorias=[];
+let porCategoria={};
+p.itens.forEach(it=>{
+if(!porCategoria[it.categoria]){
+porCategoria[it.categoria]=[];
+ordemCategorias.push(it.categoria);
+}
+porCategoria[it.categoria].push(it);
+});
+
+ordemCategorias.forEach(nomeCategoria=>{
+let itensDaCategoria=porCategoria[nomeCategoria];
+let cxCategoria=0,cxBonCategoria=0,valorCategoria=0,difCategoria=0;
+
+itensDaCategoria.forEach(it=>{
+let unitBonReal = it.val * (1-it.bon/100);
+let un=it.cx*it.un;
+let t=un*it.val;
+let tb=t;
+let cxBon = it.cx * (it.bon / 100);
+
+total+=t;
+totalBon+=tb;
+difTotal+=t*(it.bon/100);
+cxCategoria+=it.cx;
+cxBonCategoria+=cxBon;
+valorCategoria+=t;
+difCategoria+=t*(it.bon/100);
+});
+
+let precoCategoria=itensDaCategoria[0].val;
+let bonifCategoria=itensDaCategoria[0].bon;
+let precoComBonifCategoria=precoCategoria/(1+bonifCategoria/100);
+
+texto+=`📦 ${nomeCategoria}\n`;
+texto+=`Total de Caixas: ${cxCategoria}\n`;
+texto+=`Caixas Bonificadas: ${cxBonCategoria.toFixed(2)}\n`;
+texto+=`Preço em Nota: R$ ${precoCategoria.toFixed(2)}\n`;
+texto+=`Preço c/ Bonificação:\nReal: R$ ${precoComBonifCategoria.toFixed(4)} | Arredondado: R$ ${precoComBonifCategoria.toFixed(2)}\n`;
+texto+=`Bonificação: ${bonifCategoria}%\n`;
+texto+=`Total: R$ ${valorCategoria.toFixed(2)}\n`;
+texto+=`Diferença: R$ ${difCategoria.toFixed(2)}\n\n`;
+
+itensDaCategoria.forEach(it=>{
+texto+=`${it.produto||it.categoria} — ${it.cx} cx\n`;
+});
+texto+=`\n`;
+});
+
+let diferenca=difTotal;
+let encartePct = total>0 ? ((p.valorEncarte||0)/total*100) : 0;
+let media = total>0 ? ((diferenca+(p.valorEncarte||0))/total*100) : 0;
+
+texto+=`----------------------\n`;
+texto+=`TOTAL: R$ ${total.toFixed(2)}\n`;
+texto+=`TOTAL BONIFICADO: R$ ${totalBon.toFixed(2)}\n`;
+texto+=`DIFERENÇA: R$ ${diferenca.toFixed(2)}\n`;
+if(p.valorEncarte>0){
+texto+=`ENCARTE: R$ ${fmtMoeda(p.valorEncarte)} (${encartePct.toFixed(2)}%)\n`;
+texto+=`MÉDIA BONIFICAÇÃO (c/ encarte): ${media.toFixed(2)}%`;
+}else{
+texto+=`MÉDIA BONIFICAÇÃO: ${media.toFixed(2)}%`;
+}
+
+return texto;
+}
+
+// SALVAR
+function salvarPedido(){
+if(pedidoAtual.length===0){
+mostrarModalPedidoPro("Adicione ao menos um item ao pedido.","⚠️");
+return;
+}
+
+let encarte=parseMoeda(valorEncarte.value);
+
+if(pedidoEditIndex!==null){
+pedidos[pedidoEditIndex]={cliente:clienteAtual.nome,data:dataAtual,itens:pedidoAtual,valorEncarte:encarte};
+pedidoEditIndex=null;
+}else{
+pedidos.push({cliente:clienteAtual.nome,data:dataAtual,itens:pedidoAtual,valorEncarte:encarte});
+}
+
+save();
+pedidoAtual=[];
+valorEncarte.value="";
+render();
+mostrarModalPedidoPro("Pedido salvo com sucesso!","💾");
+show("pedidoMenu");
+}
+
+function editarPedido(i){
+let p=pedidos[i];
+clienteAtual=clientes.find(c=>c.nome===p.cliente) || {nome:p.cliente};
+dataAtual=p.data;
+pedidoAtual=JSON.parse(JSON.stringify(p.itens));
+pedidoEditIndex=i;
+valorEncarte.value=p.valorEncarte?formatarMoeda(p.valorEncarte):"";
+
+infoPedido.innerHTML=montarInfoPedido("(editando)");
+show("pedido");
+render();
+}
+
+// LISTAR
+function renderPedidoMenu(){
+show("pedidoMenu");
+listaRedesPedido.innerHTML="";
+
+if(clientes.length===0){
+listaRedesPedido.innerHTML="<div class='card'>Nenhuma rede cadastrada ainda.</div>";
+return;
+}
+
+clientes.forEach(c=>{
+let total=pedidos.filter(p=>p.cliente===c.nome).length;
+listaRedesPedido.innerHTML+=`
+<div class="card" onclick="verPedidoRede('${c.nome.replace(/'/g,"\\'")}')">
+<b>${c.nome}</b><br>
+${total} pedido(s) salvo(s)
+</div>`;
+});
+}
+
+function verPedidoRede(nomeRede){
+pedidoRedeSalvosNome.innerText=`Pedidos — ${nomeRede}`;
+show("pedidoRedeSalvos");
+renderListaPedidosRede(nomeRede);
+}
+
+function renderListaPedidosRede(nomeRede){
+let lista=pedidos
+.map((p,i)=>({p,i}))
+.filter(x=>x.p.cliente===nomeRede)
+.reverse();
+
+listaPedidosRede.innerHTML="";
+
+if(lista.length===0){
+listaPedidosRede.innerHTML="<div class='card'>Nenhum pedido salvo ainda.</div>";
+return;
+}
+
+lista.forEach(({p,i})=>{
+let html=`<div class="card"><b>${p.cliente}</b> - ${formatarData(p.data)}<br>`;
+
+p.itens.forEach(it=>{
+html+=`${it.categoria} - ${it.cx} cx<br>`;
+});
+
+html+=`
+<button class="pequeno" onclick="copiarTexto(gerarTextoPadrao(pedidos[${i}]))">📲 Texto</button>
+<button class="pequeno editar" onclick="editarPedido(${i})">✏️ Editar</button>
+<button class="pequeno excluir" onclick="excluirPedido(${i},'${nomeRede.replace(/'/g,"\\'")}')">❌ Excluir</button>
+</div>`;
+
+listaPedidosRede.innerHTML+=html;
+});
+}
+
+async function excluirPedido(i,nomeRede){
+if(!await confirmarPedidoPro("Excluir esse pedido?")) return;
+pedidos.splice(i,1);
+save();
+renderListaPedidosRede(nomeRede);
+}
+
+/* =========================================================
+   RELATÓRIO DE TROCA
+   ========================================================= */
+
+function iniciarTroca(){
+trocaAtual={rede:null,loja:null,data:null,itens:[],valorPedido:0,resultado:null};
+trocaEditIndex=null;
+
+if(clientes.length===0){
+mostrarModalPedidoPro("Cadastre uma rede primeiro.","⚠️");
+show("redes");
+return;
+}
+
+redeSelectTroca.innerHTML="";
+clientes.forEach((c,i)=>{
+redeSelectTroca.innerHTML+=`<option value="${i}">${c.nome}</option>`;
+});
+
+show("trocaSetup");
+onChangeRedeTroca();
+}
+
+function onChangeRedeTroca(){
+let rede=clientes[redeSelectTroca.value];
+if(!rede) return;
+
+let lista=lojas.filter(l=>l.rede===rede.nome);
+
+if(lista.length===0){
+trocaSemLoja.classList.remove('hidden');
+trocaComLoja.classList.add('hidden');
+}else{
+trocaSemLoja.classList.add('hidden');
+trocaComLoja.classList.remove('hidden');
+buscaLojaTroca.value="";
+trocaAtual.lojaEscolhidaKey=null;
+renderLojasTroca();
+renderHistoricoLojaTroca(null);
+}
+}
+
+function renderLojasTroca(){
+let rede=clientes[redeSelectTroca.value];
+if(!rede) return;
+
+let filtro=(buscaLojaTroca.value||"").toLowerCase();
+
+let lista=lojas.filter(l=>l.rede===rede.nome).filter(l=>{
+if(!filtro) return true;
+return l.razaoSocial.toLowerCase().includes(filtro) ||
+l.cnpj.toLowerCase().includes(filtro) ||
+l.cidade.toLowerCase().includes(filtro);
+});
+
+listaLojasTroca.innerHTML="";
+lista.forEach(l=>{
+let i=lojas.indexOf(l);
+let selecionada = trocaAtual.lojaEscolhidaKey===i;
+listaLojasTroca.innerHTML+=`
+<div class="card" style="${selecionada?'border-left-color:#007a33;':''}" onclick="selecionarLojaTroca(${i})">
+<b>${l.razaoSocial}</b> ${selecionada?'✅':''}<br>
+CNPJ: ${l.cnpj}<br>
+Cidade: ${l.cidade}
+</div>`;
+});
+}
+
+function selecionarLojaTroca(i){
+trocaAtual.lojaEscolhidaKey=i;
+renderLojasTroca();
+renderHistoricoLojaTroca(lojas[i]);
+}
+
+function renderHistoricoLojaTroca(loja){
+let div=document.getElementById("historicoLojaTroca");
+if(!div) return;
+
+if(!loja){ div.innerHTML=""; return; }
+
+let hist=trocas
+.filter(t=>t.loja && t.loja.cnpj===loja.cnpj)
+.slice(-3).reverse();
+
+if(hist.length===0){
+div.innerHTML=`<div class="aviso">Sem histórico de trocas anteriores nessa loja.</div>`;
+return;
+}
+
+let html=`<h4>Histórico de trocas dessa loja</h4>`;
+hist.forEach(t=>{
+html+=`
+<div class="historico-card">
+<b>${formatarData(t.data)}</b><br>
+💰 R$ ${fmtMoeda(t.total)} (${fmt2(t.percTotal)}%)<br>
+🟠 Avaria: R$ ${fmtMoeda(t.totalAvaria)}<br>
+🔴 Vencimento: R$ ${fmtMoeda(t.totalVencimento)}
+</div>`;
+});
+
+div.innerHTML=`<div class="historico">${html}</div>`;
+}
+
+function confirmarTrocaSetup(){
+let rede=clientes[redeSelectTroca.value];
+let loja=lojas[trocaAtual.lojaEscolhidaKey];
+
+if(!rede){mostrarModalPedidoPro("Selecione a rede.","⚠️");return;}
+if(!loja){mostrarModalPedidoPro("Selecione a loja.","⚠️");return;}
+if(!dataTroca.value){mostrarModalPedidoPro("Informe a data da troca.","⚠️");return;}
+
+trocaAtual.rede=rede.nome;
+trocaAtual.loja=loja;
+trocaAtual.data=dataTroca.value;
+trocaAtual.itens=[];
+
+infoTroca.innerText=`${rede.nome} - ${loja.razaoSocial} | ${formatarData(trocaAtual.data)}`;
+
+carregarGrupoTroca();
+renderItensTroca();
+show("trocaItens");
+}
+
+/* =========================================================
+   LEITOR DE CÓDIGO DE BARRAS (câmera)
+   ========================================================= */
+let html5QrCode=null;
+let leitorProcessando=false;
+
+function abrirLeitorCodigoBarras(){
+if(typeof Html5Qrcode==="undefined"){
+mostrarModalPedidoPro("O leitor de código de barras não carregou. Verifique sua conexão com a internet e tente novamente.","⚠️");
+return;
+}
+
+leitorProcessando=false;
+leitorOverlay.classList.remove("hidden");
+
+html5QrCode=new Html5Qrcode("leitorCodigoBarras");
+
+let config={
+fps:10,
+qrbox:{width:280,height:150},
+formatsToSupport:[
+Html5QrcodeSupportedFormats.EAN_13,
+Html5QrcodeSupportedFormats.EAN_8,
+Html5QrcodeSupportedFormats.UPC_A,
+Html5QrcodeSupportedFormats.UPC_E,
+Html5QrcodeSupportedFormats.CODE_128
+]
+};
+
+html5QrCode.start(
+{facingMode:"environment"},
+config,
+(codigoLido)=>{
+if(leitorProcessando) return;
+leitorProcessando=true;
+processarCodigoLido(codigoLido);
+},
+()=>{ /* ignora frames sem leitura */ }
+).catch(()=>{
+mostrarModalPedidoPro("Não foi possível acessar a câmera.\n\nVerifique se:\n- Você deu permissão de câmera pro navegador/app\n- Está acessando o app por um link https (câmera não funciona abrindo o arquivo direto no celular)","⚠️");
+fecharLeitorCodigoBarras();
+});
+}
+
+function fecharLeitorCodigoBarras(){
+if(html5QrCode){
+html5QrCode.stop().then(()=>{
+html5QrCode.clear();
+html5QrCode=null;
+}).catch(()=>{
+html5QrCode=null;
+});
+}
+leitorOverlay.classList.add("hidden");
+}
+
+function processarCodigoLido(codigo){
+let iguais=produtos.filter(p=>p.codbarras && p.codbarras.trim()===String(codigo).trim());
+
+fecharLeitorCodigoBarras();
+
+if(iguais.length===0){
+mostrarModalPedidoPro(`Nenhum produto cadastrado com o código de barras ${codigo}.`,"⚠️");
+return;
+}
+
+let produto=iguais[0];
+grupoTrocaSelect.value=produto.grupo;
+onChangeGrupoTroca();
+
+let idx=produtos.indexOf(produto);
+produtoTrocaSelect.value=String(idx);
+
+// O cadastro de produtos já bloqueia código de barras duplicado (a não ser que o usuário confirme
+// "salvar mesmo assim"), então esse aviso extra só aparece nesse caso raro.
+if(iguais.length>1){
+mostrarModalPedidoPro(`Produto encontrado:\n${produto.descricao}\n(${produto.grupo})\n\n⚠️ Esse código de barras está cadastrado em mais de um produto (${iguais.map(p=>p.descricao).join(", ")}). Confira se selecionou o produto certo.`,"⚠️");
+}else{
+mostrarModalPedidoPro(`Produto encontrado:\n${produto.descricao}\n(${produto.grupo})`,"✅");
+}
+}
+
+function carregarGrupoTroca(){
+grupoTrocaSelect.innerHTML="";
+gruposUnicos().forEach(g=>{
+grupoTrocaSelect.innerHTML+=`<option value="${g}">${g}</option>`;
+});
+onChangeGrupoTroca();
+}
+
+function editarTroca(i){
+let t=trocas[i];
+trocaEditIndex=i;
+
+trocaAtual={
+rede:t.rede,
+loja:t.loja,
+data:t.data,
+itens:JSON.parse(JSON.stringify(t.itens)),
+valorPedido:t.valorPedido,
+resultado:null
+};
+
+infoTroca.innerText=`${t.rede} - ${t.loja.razaoSocial} | ${formatarData(t.data)} (editando)`;
+
+carregarGrupoTroca();
+renderItensTroca();
+show("trocaItens");
+}
+
+function onChangeGrupoTroca(){
+let grupo=grupoTrocaSelect.value;
+produtoTrocaSelect.innerHTML="";
+produtos.forEach((p,i)=>{
+if(p.grupo===grupo){
+produtoTrocaSelect.innerHTML+=`<option value="${i}">${p.descricao}</option>`;
+}
+});
+}
+
+function addItemTroca(){
+let grupo=grupoTrocaSelect.value;
+let pIndex=produtoTrocaSelect.value;
+let produto=produtos[pIndex];
+
+let qtd=parseInt(trocaQtd.value)||0;
+let valorTotal=parseMoeda(trocaValorTotal.value);
+let validade=trocaValidade.value;
+let lote=trocaLote.value.trim();
+let motivo=trocaMotivo.value;
+
+if(!produto){mostrarModalPedidoPro("Selecione um produto.","⚠️");return;}
+if(qtd<=0){mostrarModalPedidoPro("Informe a quantidade.","⚠️");return;}
+if(valorTotal<=0){mostrarModalPedidoPro("Informe o valor total da troca.","⚠️");return;}
+if(!motivo){mostrarModalPedidoPro("Selecione o motivo: Avaria ou Vencimento.","⚠️");return;}
+
+trocaAtual.itens.push({
+grupo,
+descricao:produto.descricao,
+codbarras:produto.codbarras,
+qtd,
+valorTotal,
+validade,
+lote,
+motivo
+});
+
+renderItensTroca();
+
+trocaQtd.value="";
+trocaValorTotal.value="";
+trocaValidade.value="";
+trocaLote.value="";
+trocaMotivo.value="";
+}
+
+function removerItemTroca(i){
+trocaAtual.itens.splice(i,1);
+renderItensTroca();
+}
+
+function renderItensTroca(){
+itensTrocaLista.innerHTML="";
+
+let total=0,totalAvaria=0,totalVencimento=0;
+
+trocaAtual.itens.forEach((it,i)=>{
+total+=it.valorTotal;
+if(it.motivo==="Avaria") totalAvaria+=it.valorTotal;
+if(it.motivo==="Vencimento") totalVencimento+=it.valorTotal;
+
+itensTrocaLista.innerHTML+=`
+<div class="card">
+${it.descricao} (${it.grupo})<br>
+Qtde: ${it.qtd} | Lote: ${it.lote||"-"}<br>
+Validade: ${it.validade?formatarData(it.validade):"-"}<br>
+Motivo: ${it.motivo}<br>
+Valor: R$ ${fmtMoeda(it.valorTotal)}<br>
+<button onclick="removerItemTroca(${i})">❌</button>
+</div>`;
+});
+
+totaisTroca.innerHTML=`
+💰 Total da Troca: R$ ${fmtMoeda(total)}<br>
+🟠 Avaria: R$ ${fmtMoeda(totalAvaria)}<br>
+🔴 Vencimento: R$ ${fmtMoeda(totalVencimento)}
+`;
+}
+
+function irParaFinalizarTroca(){
+if(trocaAtual.itens.length===0){
+mostrarModalPedidoPro("Adicione ao menos um item de troca.","⚠️");
+return;
+}
+
+if(trocaEditIndex!==null){
+let original=trocas[trocaEditIndex];
+valorPedidoTroca.value=original.valorPedido?formatarMoeda(String(original.valorPedido).replace(".",",")):"";
+observacaoTroca.value=original.observacao||"";
+trocaStatus.value=original.status||"Em Andamento";
+}else{
+valorPedidoTroca.value="";
+observacaoTroca.value="";
+trocaStatus.value="Em Andamento";
+}
+
+resultadoTroca.innerHTML="";
+renderResumoItensTroca();
+calcularResultadoTroca();
+show("trocaFinal");
+}
+
+function renderResumoItensTroca(){
+let total=0,totalAvaria=0,totalVencimento=0;
+trocaAtual.itens.forEach(it=>{
+total+=it.valorTotal;
+if(it.motivo==="Avaria") totalAvaria+=it.valorTotal;
+if(it.motivo==="Vencimento") totalVencimento+=it.valorTotal;
+});
+
+resumoItensTroca.innerHTML=`
+<b>${trocaAtual.rede}</b><br>
+${trocaAtual.loja.razaoSocial} - ${trocaAtual.loja.cidade}<br>
+CNPJ: ${trocaAtual.loja.cnpj}<br>
+Data: ${formatarData(trocaAtual.data)}<br>
+Itens na troca: ${trocaAtual.itens.length}<br><br>
+💰 Total da Troca: R$ ${fmtMoeda(total)}<br>
+🟠 Avaria: R$ ${fmtMoeda(totalAvaria)}<br>
+🔴 Vencimento: R$ ${fmtMoeda(totalVencimento)}
+`;
+}
+
+function calcularResultadoTroca(){
+let total=0,totalAvaria=0,totalVencimento=0;
+trocaAtual.itens.forEach(it=>{
+total+=it.valorTotal;
+if(it.motivo==="Avaria") totalAvaria+=it.valorTotal;
+if(it.motivo==="Vencimento") totalVencimento+=it.valorTotal;
+});
+
+let valorPedido=parseMoeda(valorPedidoTroca.value);
+
+if(valorPedido<=0){
+resultadoTroca.innerHTML="Informe o valor do último pedido para calcular o percentual.";
+trocaAtual.resultado=null;
+return null;
+}
+
+let percTotal=(total/valorPedido)*100;
+let percAvaria=(totalAvaria/valorPedido)*100;
+let percVencimento=(totalVencimento/valorPedido)*100;
+
+resultadoTroca.innerHTML=`
+📊 Percentual total da troca: <b>${fmt2(percTotal)}%</b><br>
+🟠 Avaria: R$ ${fmtMoeda(totalAvaria)} (${fmt2(percAvaria)}%)<br>
+🔴 Vencimento: R$ ${fmtMoeda(totalVencimento)} (${fmt2(percVencimento)}%)
+`;
+
+let resultado={
+total,totalAvaria,totalVencimento,
+valorPedido,percTotal,percAvaria,percVencimento
+};
+trocaAtual.resultado=resultado;
+return resultado;
+}
+
+function salvarTroca(){
+let resultado=calcularResultadoTroca();
+if(!resultado){
+mostrarModalPedidoPro("Informe o valor do último pedido realizado.","⚠️");
+return;
+}
+
+let status=trocaStatus.value||"Em Andamento";
+
+if(trocaEditIndex!==null){
+let original=trocas[trocaEditIndex];
+trocas[trocaEditIndex]={
+numero:original.numero,
+rede:trocaAtual.rede,
+loja:trocaAtual.loja,
+data:trocaAtual.data,
+itens:trocaAtual.itens,
+observacao:observacaoTroca.value.trim(),
+status,
+...resultado,
+criadoEm:original.criadoEm,
+editadoEm:new Date().toISOString()
+};
+trocaEditIndex=null;
+}else{
+trocas.push({
+numero:proximoNumeroTroca++,
+rede:trocaAtual.rede,
+loja:trocaAtual.loja,
+data:trocaAtual.data,
+itens:trocaAtual.itens,
+observacao:observacaoTroca.value.trim(),
+status,
+...resultado,
+criadoEm:new Date().toISOString()
+});
+}
+
+save();
+mostrarModalPedidoPro("Relatório de troca salvo!","💾");
+show("trocaMenu");
+}
+
+function gerarTextoTroca(t){
+let texto=`SOLICITAÇÃO DE NOTA DE DEVOLUÇÃO\n`;
+texto+=`Razão Social: ${t.loja.razaoSocial}\n`;
+texto+=`CNPJ: ${t.loja.cnpj}\n`;
+texto+=`Rede: ${t.rede}\n`;
+texto+=`Cidade: ${t.loja.cidade}\n`;
+texto+=`Valor Total da Troca: R$ ${fmtMoeda(t.total)}\n`;
+texto+=`Valor do Pedido: R$ ${fmtMoeda(t.valorPedido)}\n`;
+texto+=`Percentual sobre o Pedido: ${fmt2(t.percTotal)}%\n`;
+texto+=`Motivo: Solicitação de nota de devolução referente às trocas de produtos do mês de ${mesExtenso(t.data)}\n`;
+texto+=`Detalhamento das Trocas:\n`;
+texto+=`- Produtos avariados: R$ ${fmtMoeda(t.totalAvaria)} - ${fmt2(t.percAvaria)}%\n`;
+texto+=`- Produtos vencidos: R$ ${fmtMoeda(t.totalVencimento)} - ${fmt2(t.percVencimento)}%\n`;
+texto+=`Operador: ${operadorAtual()}\n`;
+texto+=`Observação: ${t.observacao||"-"}`;
+return texto;
+}
+
+function gerarTextoTrocaAtual(){
+let resultado=calcularResultadoTroca();
+if(!resultado){
+mostrarModalPedidoPro("Informe o valor do último pedido realizado.","⚠️");
+return;
+}
+
+let tTemp={
+rede:trocaAtual.rede,
+loja:trocaAtual.loja,
+data:trocaAtual.data,
+observacao:observacaoTroca.value.trim(),
+status:trocaStatus.value,
+...resultado
+};
+
+copiarTexto(gerarTextoTroca(tTemp));
+}
+
+function gerarPdfTroca(t){
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+let y=15;
+
+doc.setFontSize(14);
+doc.text("RELATÓRIO DE TROCA",105,y,{align:"center"});
+y+=10;
+
+doc.setFontSize(11);
+doc.text(`Rede: ${t.rede}`,15,y); y+=7;
+doc.text(`Razão Social: ${t.loja.razaoSocial}`,15,y); y+=7;
+doc.text(`CNPJ: ${t.loja.cnpj}`,15,y); y+=7;
+doc.text(`Cidade: ${t.loja.cidade}`,15,y); y+=7;
+doc.text(`Data: ${formatarData(t.data)}`,15,y); y+=7;
+doc.text(`Vendedor: ${operadorAtual()}`,15,y); y+=10;
+
+doc.setFontSize(10);
+doc.setFont(undefined,'bold');
+doc.text("ITENS DA TROCA",15,y);
+doc.setFont(undefined,'normal');
+y+=3;
+doc.line(15,y,195,y);
+y+=8;
+
+t.itens.forEach((it,idx)=>{
+if(y>255){doc.addPage();y=20;}
+
+doc.setFontSize(10);
+doc.setFont(undefined,'bold');
+let desc=`${idx+1}. ${it.descricao}`;
+let descLines=doc.splitTextToSize(desc,180);
+doc.text(descLines,15,y);
+y+=descLines.length*5.5;
+
+doc.setFont(undefined,'normal');
+doc.text(`Código de Barras: ${it.codbarras||"-"}`,15,y); y+=6;
+doc.text(`Qtd: ${it.qtd}    Lote: ${it.lote||"-"}    Validade: ${it.validade?formatarData(it.validade):"-"}`,15,y); y+=6;
+doc.text(`Motivo: ${it.motivo}`,15,y);
+doc.text(`Valor: R$ ${fmtMoeda(it.valorTotal)}`,195,y,{align:"right"});
+y+=7;
+
+doc.setDrawColor(220,220,220);
+doc.line(15,y,195,y);
+doc.setDrawColor(0,0,0);
+y+=7;
+});
+
+y+=1;
+doc.line(15,y,195,y);
+y+=8;
+
+if(y>240){doc.addPage();y=20;}
+
+doc.setFontSize(11);
+doc.text(`Valor Total da Troca: R$ ${fmtMoeda(t.total)}`,15,y); y+=7;
+doc.text(`Valor do Pedido: R$ ${fmtMoeda(t.valorPedido)}`,15,y); y+=7;
+doc.text(`Percentual sobre o Pedido: ${fmt2(t.percTotal)}%`,15,y); y+=7;
+doc.text(`Avaria: R$ ${fmtMoeda(t.totalAvaria)} (${fmt2(t.percAvaria)}%)`,15,y); y+=7;
+doc.text(`Vencimento: R$ ${fmtMoeda(t.totalVencimento)} (${fmt2(t.percVencimento)}%)`,15,y); y+=10;
+
+doc.text("Observação:",15,y); y+=7;
+let obsLines=doc.splitTextToSize(t.observacao||"-",180);
+doc.text(obsLines,15,y);
+
+let nomeArquivo=`Troca_${t.loja.razaoSocial.replace(/[^a-zA-Z0-9]/g,"_")}_${(t.loja.cnpj||"").replace(/[^a-zA-Z0-9]/g,"")}_${t.data}.pdf`;
+abrirPdf(doc,nomeArquivo);
+}
+
+function gerarPdfTrocaAtual(){
+let resultado=calcularResultadoTroca();
+if(!resultado){
+mostrarModalPedidoPro("Informe o valor do último pedido realizado.","⚠️");
+return;
+}
+
+let tTemp={
+rede:trocaAtual.rede,
+loja:trocaAtual.loja,
+data:trocaAtual.data,
+itens:trocaAtual.itens,
+observacao:observacaoTroca.value.trim(),
+status:trocaStatus.value,
+...resultado
+};
+
+gerarPdfTroca(tTemp);
+}
+
+function iconeStatusTroca(status){
+let mapa={
+"Em Andamento":"🟡",
+"Nota Solicitada":"🔵",
+"Nota Recebida - Não Enviada":"🟠",
+"Nota Recebida - Enviada":"🟢"
+};
+return mapa[status]||"🟡";
+}
+
+function atualizarStatusTroca(i,novoStatus){
+trocas[i].status=novoStatus;
+save();
+renderTrocasSalvas();
+}
+
+function renderTrocasSalvas(){
+listaTrocasSalvas.innerHTML="";
+
+if(trocas.length===0){
+listaTrocasSalvas.innerHTML="<div class='card'>Nenhum relatório salvo ainda</div>";
+return;
+}
+
+let statusOpcoes=["Em Andamento","Nota Solicitada","Nota Recebida - Não Enviada","Nota Recebida - Enviada"];
+
+trocas.slice().reverse().forEach((t)=>{
+let i=trocas.indexOf(t);
+let statusAtual=t.status||"Em Andamento";
+
+let opcoesHtml=statusOpcoes.map(s=>
+`<option value="${s}" ${s===statusAtual?"selected":""}>${iconeStatusTroca(s)} ${s}</option>`
+).join("");
+
+listaTrocasSalvas.innerHTML+=`
+<div class="card">
+<b>Nº ${String(t.numero||0).padStart(4,"0")}</b> - ${t.rede} - ${t.loja.razaoSocial}<br>
+CNPJ: ${t.loja.cnpj||"-"} | ${t.loja.cidade||"-"}<br>
+${formatarData(t.data)} | R$ ${fmtMoeda(t.total)} (${fmt2(t.percTotal)}%)<br>
+<select onchange="atualizarStatusTroca(${i},this.value)">${opcoesHtml}</select>
+<button class="pequeno" onclick="copiarTexto(gerarTextoTroca(trocas[${i}]))">📲 Texto</button>
+<button class="pequeno" onclick="gerarPdfTroca(trocas[${i}])">📄 PDF</button>
+<button class="pequeno editar" onclick="editarTroca(${i})">✏️ Editar</button>
+<button class="pequeno excluir" onclick="excluirTroca(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+async function excluirTroca(i){
+if(!await confirmarPedidoPro("Excluir esse relatório de troca?")) return;
+trocas.splice(i,1);
+save();
+renderTrocasSalvas();
+}
+
+/* =========================================================
+   DEMANDAS
+   ========================================================= */
+function renderDemandasMenu(){
+show("demandasMenu");
+
+listaRedesDemandas.innerHTML="";
+
+if(clientes.length===0){
+listaRedesDemandas.innerHTML="<div class='card'>Nenhuma rede cadastrada ainda.</div>";
+return;
+}
+
+clientes.forEach(c=>{
+let total=demandas.filter(d=>d.rede===c.nome).length;
+let abertas=demandas.filter(d=>d.rede===c.nome && d.status!=="Finalizado").length;
+listaRedesDemandas.innerHTML+=`
+<div class="card" onclick="verDemandasRede('${c.nome.replace(/'/g,"\\'")}')">
+<b>${c.nome}</b><br>
+${total} demanda(s) — ${abertas} em aberto
+</div>`;
+});
+}
+
+function verDemandasRede(nomeRede){
+demandaRedeAtual=nomeRede;
+demandasRedeNome.innerText=`Demandas — ${nomeRede}`;
+show("demandasRede");
+renderListaDemandas();
+}
+
+function renderListaDemandas(){
+let lista=demandas
+.map((d,i)=>({d,i}))
+.filter(x=>x.d.rede===demandaRedeAtual)
+.reverse();
+
+listaDemandas.innerHTML="";
+
+if(lista.length===0){
+listaDemandas.innerHTML="<div class='card'>Nenhuma demanda registrada ainda.</div>";
+return;
+}
+
+lista.forEach(({d,i})=>{
+listaDemandas.innerHTML+=`
+<div class="card">
+<b>Nº ${String(d.numero||0).padStart(4,"0")} — ${d.categoria}</b> — ${iconeStatus(d.status)}<br>
+${d.acaoAlinhar||"-"}<br>
+Solicitado em: ${d.dataSolicitada?formatarData(d.dataSolicitada):"-"}<br>
+<button class="pequeno editar" onclick="editarDemanda(${i})">✏️ Ver/Editar</button>
+<button class="pequeno" onclick="gerarPdfDemanda(demandas[${i}])">📄 PDF</button>
+<button class="pequeno excluir" onclick="excluirDemanda(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+function iconeStatus(status){
+let mapa={"Não Iniciado":"⚪","Iniciado":"🟡","Em Andamento":"🔵","Finalizado":"🟢"};
+return `${mapa[status]||""} ${status||"-"}`;
+}
+
+function popularCategoriaDemanda(){
+demandaCategoriaSelect.innerHTML="";
+gruposUnicos().forEach(g=>{
+demandaCategoriaSelect.innerHTML+=`<option value="${g}">${g}</option>`;
+});
+demandaCategoriaSelect.innerHTML+=`<option value="PERSONALIZADO">✏️ Personalizado (digitar)</option>`;
+}
+
+function onChangeDemandaCategoria(){
+let personalizado=demandaCategoriaSelect.value==="PERSONALIZADO";
+demandaCategoriaPersonalizada.classList.toggle("hidden", !personalizado);
+if(personalizado) demandaCategoriaPersonalizada.focus();
+}
+
+function novaDemanda(){
+demandaEditIndex=null;
+demandaFormTitulo.innerText=`Nova Demanda — ${demandaRedeAtual}`;
+
+popularCategoriaDemanda();
+demandaCategoriaSelect.value=gruposUnicos()[0]||"PERSONALIZADO";
+demandaCategoriaPersonalizada.value="";
+onChangeDemandaCategoria();
+
+demandaAcaoAlinhar.value="";
+demandaDataSolicitada.value="";
+demandaRetorno.value="";
+demandaStatus.value="";
+demandaProximaVisita.value="";
+
+show("demandaForm");
+}
+
+function editarDemanda(i){
+let d=demandas[i];
+demandaEditIndex=i;
+demandaRedeAtual=d.rede;
+demandaFormTitulo.innerText=`Demanda — ${d.rede}`;
+
+popularCategoriaDemanda();
+
+let ehPadrao=gruposUnicos().includes(d.categoria);
+if(ehPadrao){
+demandaCategoriaSelect.value=d.categoria;
+demandaCategoriaPersonalizada.value="";
+}else{
+demandaCategoriaSelect.value="PERSONALIZADO";
+demandaCategoriaPersonalizada.value=d.categoria;
+}
+onChangeDemandaCategoria();
+
+demandaAcaoAlinhar.value=d.acaoAlinhar||"";
+demandaDataSolicitada.value=d.dataSolicitada||"";
+demandaRetorno.value=d.retorno||"";
+demandaStatus.value=d.status||"";
+demandaProximaVisita.value=d.proximaVisita||"";
+
+show("demandaForm");
+}
+
+function salvarDemanda(){
+let categoria=demandaCategoriaSelect.value==="PERSONALIZADO"
+? demandaCategoriaPersonalizada.value.trim()
+: demandaCategoriaSelect.value;
+
+if(!categoria){mostrarModalPedidoPro("Informe a categoria da demanda.","⚠️");return;}
+if(!demandaAcaoAlinhar.value.trim()){mostrarModalPedidoPro("Descreva a ação para alinhar.","⚠️");return;}
+if(!demandaStatus.value){mostrarModalPedidoPro("Selecione o status.","⚠️");return;}
+
+let registro={
+rede:demandaRedeAtual,
+categoria,
+acaoAlinhar:demandaAcaoAlinhar.value.trim(),
+dataSolicitada:demandaDataSolicitada.value,
+retorno:demandaRetorno.value.trim(),
+status:demandaStatus.value,
+proximaVisita:demandaProximaVisita.value.trim()
+};
+
+if(demandaEditIndex!==null){
+registro.numero=demandas[demandaEditIndex].numero;
+registro.criadoEm=demandas[demandaEditIndex].criadoEm;
+registro.editadoEm=new Date().toISOString();
+demandas[demandaEditIndex]=registro;
+demandaEditIndex=null;
+}else{
+let contador=proximoNumeroDemandaPorRede[demandaRedeAtual]||1;
+registro.numero=contador;
+proximoNumeroDemandaPorRede[demandaRedeAtual]=contador+1;
+registro.criadoEm=new Date().toISOString();
+demandas.push(registro);
+}
+
+save();
+mostrarModalPedidoPro("Demanda salva!","💾");
+show("demandasRede");
+renderListaDemandas();
+}
+
+async function excluirDemanda(i){
+if(!await confirmarPedidoPro("Excluir essa demanda?")) return;
+demandas.splice(i,1);
+save();
+renderListaDemandas();
+}
+
+function gerarPdfDemanda(d){
+const { jsPDF } = window.jspdf;
+let doc = new jsPDF();
+let y=15;
+
+doc.setFontSize(14);
+doc.text("RELATÓRIO DE DEMANDA / ALINHAMENTO",105,y,{align:"center"});
+y+=10;
+
+doc.setFontSize(11);
+if(d.numero){
+doc.text(`Protocolo: Nº ${String(d.numero).padStart(4,"0")}`,15,y); y+=7;
+}
+doc.text(`Rede: ${d.rede}`,15,y); y+=7;
+doc.text(`Categoria: ${d.categoria}`,15,y); y+=7;
+doc.text(`Data Solicitada: ${d.dataSolicitada?formatarData(d.dataSolicitada):"-"}`,15,y); y+=7;
+doc.text(`Status: ${d.status||"-"}`,15,y); y+=10;
+
+function bloco(titulo,texto){
+doc.setFontSize(11);
+doc.setTextColor(0);
+doc.setFont(undefined,'bold');
+doc.text(titulo,15,y); y+=7;
+doc.setFont(undefined,'normal');
+let linhas=doc.splitTextToSize(texto||"-",180);
+doc.text(linhas,15,y);
+y+=linhas.length*6+6;
+if(y>260){doc.addPage();y=15;}
+}
+
+bloco("Ação para alinhar:",d.acaoAlinhar);
+bloco("Retorno:",d.retorno);
+bloco("Ações para a próxima visita:",d.proximaVisita);
+
+if(y>250){doc.addPage();y=15;}
+
+doc.setDrawColor(220,220,220);
+doc.line(15,y,195,y);
+y+=8;
+
+doc.setFontSize(9);
+doc.setTextColor(120);
+doc.text(`Criado em: ${d.criadoEm?new Date(d.criadoEm).toLocaleString('pt-BR'):"-"}`,15,y); y+=6;
+if(d.editadoEm){
+doc.text(`Editado em: ${new Date(d.editadoEm).toLocaleString('pt-BR')}`,15,y); y+=6;
+}
+doc.text(`Operador: ${operadorAtual()}`,15,y);
+
+let nomeArquivo=`Demanda_${d.rede.replace(/[^a-zA-Z0-9]/g,"_")}_${d.categoria.replace(/[^a-zA-Z0-9]/g,"_")}.pdf`;
+abrirPdf(doc,nomeArquivo);
+}
+
+/* =========================================================
+   OCORRÊNCIA
+   ========================================================= */
+function renderOcorrenciaMenu(){
+show("ocorrenciaMenu");
+
+listaRedesOcorrencia.innerHTML="";
+
+if(clientes.length===0){
+listaRedesOcorrencia.innerHTML="<div class='card'>Nenhuma rede cadastrada ainda.</div>";
+return;
+}
+
+clientes.forEach(c=>{
+let total=ocorrencias.filter(o=>o.rede===c.nome).length;
+listaRedesOcorrencia.innerHTML+=`
+<div class="card" onclick="verOcorrenciasRede('${c.nome.replace(/'/g,"\\'")}')">
+<b>${c.nome}</b><br>
+${total} ocorrência(s) registrada(s)
+</div>`;
+});
+}
+
+function verOcorrenciasRede(nomeRede){
+ocorrenciaRedeAtual=nomeRede;
+ocorrenciaRedeNome.innerText=`Ocorrências — ${nomeRede}`;
+show("ocorrenciaRede");
+renderListaOcorrencias();
+}
+
+function renderListaOcorrencias(){
+let lista=ocorrencias
+.map((o,i)=>({o,i}))
+.filter(x=>x.o.rede===ocorrenciaRedeAtual)
+.reverse();
+
+listaOcorrencias.innerHTML="";
+
+if(lista.length===0){
+listaOcorrencias.innerHTML="<div class='card'>Nenhuma ocorrência registrada ainda.</div>";
+return;
+}
+
+lista.forEach(({o,i})=>{
+let catsTexto=categoriasDaOcorrencia(o).map(c=>c.categoria+(c.produto?" - "+c.produto:"")).join(", ");
+listaOcorrencias.innerHTML+=`
+<div class="card">
+<b>Nº ${String(numeroDaOcorrencia(o)).padStart(4,"0")}</b> - ${o.loja.razaoSocial}<br>
+${o.data?formatarData(o.data):"-"} | ${catsTexto}<br>
+${(o.motivo||"").slice(0,80)}${(o.motivo||"").length>80?"...":""}<br>
+<button class="pequeno" onclick="copiarTexto(gerarTextoOcorrencia(ocorrencias[${i}]))">📲 Texto</button>
+<button class="pequeno" onclick="gerarPdfOcorrencia(ocorrencias[${i}])">📄 PDF</button>
+<button class="pequeno editar" onclick="editarOcorrencia(${i})">✏️ Editar</button>
+<button class="pequeno excluir" onclick="excluirOcorrencia(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+function novaOcorrencia(){
+ocorrenciaEditIndex=null;
+ocorrenciaLojaSelecionada=null;
+ocorrenciaFontesExtras=[];
+ocorrenciaCategoriasSelecionadas=[];
+
+ocorrenciaFormTitulo.innerText=`Nova Ocorrência — ${ocorrenciaRedeAtual}`;
+
+buscaLojaOcorrencia.value="";
+ocorrenciaLojaSelecionadaCard.classList.add("hidden");
+renderListaLojasOcorrencia();
+
+ocorrenciaData.value=new Date().toISOString().split("T")[0];
+
+ocorrenciaAgenciaSelect.value="Dinâmica";
+ocorrenciaAgenciaPersonalizada.value="";
+ocorrenciaAgenciaPersonalizada.classList.add("hidden");
+
+popularCategoriaOcorrencia();
+onChangeOcorrenciaCategoria();
+renderListaCategoriasOcorrencia();
+
+ocorrenciaMotivo.value="";
+ocorrenciaObservacao.value="";
+
+let u=usuarioAtivo();
+ocorrenciaFonteVendedor.innerText=`Vendedor: ${u?u.nome:"-"}`;
+renderListaFontesExtras();
+novaFonteExtra.value="";
+
+show("ocorrenciaForm");
+}
+
+function renderListaLojasOcorrencia(){
+let filtro=(buscaLojaOcorrencia.value||"").toLowerCase();
+let lista=lojas.filter(l=>l.rede===ocorrenciaRedeAtual).filter(l=>{
+if(!filtro) return true;
+return l.razaoSocial.toLowerCase().includes(filtro) ||
+l.cnpj.toLowerCase().includes(filtro) ||
+l.cidade.toLowerCase().includes(filtro);
+});
+
+listaLojasOcorrencia.innerHTML="";
+lista.forEach(l=>{
+listaLojasOcorrencia.innerHTML+=`
+<div class="card" onclick="selecionarLojaOcorrencia('${l.cnpj.replace(/'/g,"\\'")}')">
+<b>${l.razaoSocial}</b><br>CNPJ: ${l.cnpj}<br>Cidade: ${l.cidade}
+</div>`;
+});
+}
+
+function selecionarLojaOcorrencia(cnpj){
+let loja=lojas.find(l=>l.cnpj===cnpj && l.rede===ocorrenciaRedeAtual);
+if(!loja) return;
+ocorrenciaLojaSelecionada=loja;
+
+ocorrenciaLojaSelecionadaCard.classList.remove("hidden");
+ocorrenciaLojaSelecionadaCard.innerHTML=`
+✅ <b>${loja.razaoSocial}</b><br>
+CNPJ: ${loja.cnpj}<br>
+Cidade: ${loja.cidade}
+`;
+}
+
+function popularCategoriaOcorrencia(){
+ocorrenciaCategoriaSelect.innerHTML="";
+gruposUnicos().forEach(g=>{
+ocorrenciaCategoriaSelect.innerHTML+=`<option value="${g}">${g}</option>`;
+});
+}
+
+function onChangeOcorrenciaAgencia(){
+if(ocorrenciaAgenciaSelect.value==="__OUTRA__"){
+ocorrenciaAgenciaPersonalizada.classList.remove("hidden");
+ocorrenciaAgenciaPersonalizada.focus();
+}else{
+ocorrenciaAgenciaPersonalizada.classList.add("hidden");
+}
+}
+
+function valorOcorrenciaAgencia(){
+return ocorrenciaAgenciaSelect.value==="__OUTRA__" ? (ocorrenciaAgenciaPersonalizada.value.trim()||"-") : ocorrenciaAgenciaSelect.value;
+}
+
+function onChangeOcorrenciaCategoria(){
+let grupo=ocorrenciaCategoriaSelect.value;
+ocorrenciaProdutoSelect.innerHTML=`<option value="">Nenhum produto específico</option>`;
+produtos.forEach(p=>{
+if(p.grupo===grupo){
+ocorrenciaProdutoSelect.innerHTML+=`<option value="${p.descricao}">${p.descricao}</option>`;
+}
+});
+}
+
+function adicionarCategoriaOcorrencia(){
+let categoria=ocorrenciaCategoriaSelect.value;
+let produto=ocorrenciaProdutoSelect.value||"";
+
+if(!categoria){mostrarModalPedidoPro("Selecione uma categoria.","⚠️");return;}
+
+let jaAdicionada=ocorrenciaCategoriasSelecionadas.some(c=>c.categoria===categoria && c.produto===produto);
+if(jaAdicionada){mostrarModalPedidoPro("Essa categoria/produto já foi adicionada.","⚠️");return;}
+
+ocorrenciaCategoriasSelecionadas.push({categoria,produto});
+renderListaCategoriasOcorrencia();
+}
+
+function removerCategoriaOcorrencia(i){
+ocorrenciaCategoriasSelecionadas.splice(i,1);
+renderListaCategoriasOcorrencia();
+}
+
+function renderListaCategoriasOcorrencia(){
+listaCategoriasOcorrencia.innerHTML="";
+if(ocorrenciaCategoriasSelecionadas.length===0){
+listaCategoriasOcorrencia.innerHTML="<div class='aviso'>Nenhuma categoria adicionada ainda.</div>";
+return;
+}
+ocorrenciaCategoriasSelecionadas.forEach((c,i)=>{
+listaCategoriasOcorrencia.innerHTML+=`
+<div class="card">
+${c.categoria}${c.produto?" - "+c.produto:""}
+<button class="pequeno excluir" onclick="removerCategoriaOcorrencia(${i})">❌</button>
+</div>`;
+});
+}
+
+// Compatibilidade: ocorrências salvas antes de suportar múltiplas categorias
+// tinham só um campo "categoria"/"produto" únicos
+function categoriasDaOcorrencia(o){
+if(o.categorias && o.categorias.length) return o.categorias;
+if(o.categoria) return [{categoria:o.categoria,produto:o.produto||""}];
+return [];
+}
+
+// Numeração dinâmica: recalcula pela ordem de criação dentro da rede,
+// assim o número de uma ocorrência excluída é reaproveitado automaticamente
+function numeroDaOcorrencia(o){
+let daRede=ocorrencias
+.filter(x=>x.rede===o.rede)
+.sort((a,b)=>(a.criadoEm||"").localeCompare(b.criadoEm||""));
+return daRede.indexOf(o)+1;
+}
+
+function adicionarFonteExtra(){
+let nome=novaFonteExtra.value.trim();
+if(!nome) return;
+ocorrenciaFontesExtras.push(nome);
+novaFonteExtra.value="";
+renderListaFontesExtras();
+}
+
+function removerFonteExtra(i){
+ocorrenciaFontesExtras.splice(i,1);
+renderListaFontesExtras();
+}
+
+function renderListaFontesExtras(){
+listaFontesExtras.innerHTML="";
+ocorrenciaFontesExtras.forEach((nome,i)=>{
+listaFontesExtras.innerHTML+=`
+<div class="card">
+${nome}
+<button class="pequeno excluir" onclick="removerFonteExtra(${i})">❌</button>
+</div>`;
+});
+}
+
+function editarOcorrencia(i){
+let o=ocorrencias[i];
+ocorrenciaEditIndex=i;
+ocorrenciaRedeAtual=o.rede;
+ocorrenciaLojaSelecionada=o.loja;
+ocorrenciaFontesExtras=(o.fontesExtras||[]).slice();
+ocorrenciaCategoriasSelecionadas=categoriasDaOcorrencia(o).slice();
+
+ocorrenciaFormTitulo.innerText=`Ocorrência — ${o.rede}`;
+
+buscaLojaOcorrencia.value="";
+renderListaLojasOcorrencia();
+selecionarLojaOcorrencia(o.loja.cnpj);
+
+ocorrenciaData.value=o.data||"";
+
+if(o.agencia==="Dinâmica"){
+ocorrenciaAgenciaSelect.value="Dinâmica";
+ocorrenciaAgenciaPersonalizada.value="";
+ocorrenciaAgenciaPersonalizada.classList.add("hidden");
+}else{
+ocorrenciaAgenciaSelect.value="__OUTRA__";
+ocorrenciaAgenciaPersonalizada.value=o.agencia||"";
+ocorrenciaAgenciaPersonalizada.classList.remove("hidden");
+}
+
+popularCategoriaOcorrencia();
+onChangeOcorrenciaCategoria();
+renderListaCategoriasOcorrencia();
+
+ocorrenciaMotivo.value=o.motivo||"";
+ocorrenciaObservacao.value=o.observacao||"";
+
+ocorrenciaFonteVendedor.innerText=`Vendedor: ${o.vendedor||"-"}`;
+renderListaFontesExtras();
+novaFonteExtra.value="";
+
+show("ocorrenciaForm");
+}
+
+function salvarOcorrencia(){
+if(!ocorrenciaLojaSelecionada){mostrarModalPedidoPro("Selecione a loja.","⚠️");return;}
+if(ocorrenciaCategoriasSelecionadas.length===0){mostrarModalPedidoPro("Adicione ao menos uma categoria.","⚠️");return;}
+if(!ocorrenciaMotivo.value.trim()){mostrarModalPedidoPro("Descreva o motivo da reclamação.","⚠️");return;}
+
+let u=usuarioAtivo();
+
+let registro={
+rede:ocorrenciaRedeAtual,
+loja:ocorrenciaLojaSelecionada,
+data:ocorrenciaData.value,
+categorias:ocorrenciaCategoriasSelecionadas.slice(),
+agencia:valorOcorrenciaAgencia(),
+motivo:ocorrenciaMotivo.value.trim(),
+observacao:ocorrenciaObservacao.value.trim(),
+vendedor:u?u.nome:"-",
+fontesExtras:ocorrenciaFontesExtras.slice()
+};
+
+if(ocorrenciaEditIndex!==null){
+registro.criadoEm=ocorrencias[ocorrenciaEditIndex].criadoEm;
+registro.editadoEm=new Date().toISOString();
+ocorrencias[ocorrenciaEditIndex]=registro;
+ocorrenciaEditIndex=null;
+}else{
+registro.criadoEm=new Date().toISOString();
+ocorrencias.push(registro);
+}
+
+save();
+mostrarModalPedidoPro("Ocorrência salva!","💾");
+show("ocorrenciaRede");
+renderListaOcorrencias();
+}
+
+async function excluirOcorrencia(i){
+if(!await confirmarPedidoPro("Excluir essa ocorrência?")) return;
+ocorrencias.splice(i,1);
+save();
+renderListaOcorrencias();
+}
+
+function gerarTextoOcorrencia(o){
+let texto=`OCORRÊNCIA DE ATENDIMENTO\n`;
+texto+=`Razão Social: ${o.loja.razaoSocial}\n`;
+texto+=`CNPJ: ${o.loja.cnpj}\n`;
+texto+=`Loja: ${o.rede}\n`;
+texto+=`Cidade: ${o.loja.cidade}\n`;
+texto+=`Data da Ocorrência: ${o.data?formatarData(o.data):"-"}\n`;
+texto+=`Agência: ${o.agencia}\n`;
+let cats=categoriasDaOcorrencia(o);
+if(cats.length===1){
+texto+=`Categoria: ${cats[0].categoria}${cats[0].produto?" - "+cats[0].produto:""}\n`;
+}else{
+texto+=`Categorias:\n`;
+cats.forEach(c=>{
+texto+=`• ${c.categoria}${c.produto?" - "+c.produto:""}\n`;
+});
+}
+texto+=`Motivo da Reclamação:\n${o.motivo}\n`;
+texto+=`Observação:\n${o.observacao||"-"}\n`;
+texto+=`Fonte da Informação:\n`;
+texto+=`Vendedor: ${o.vendedor}\n`;
+(o.fontesExtras||[]).forEach(nome=>{
+texto+=`${nome}\n`;
+});
+return texto.trim();
+}
+
+function gerarPdfOcorrencia(o){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let y=15;
+
+doc.setFontSize(14);
+doc.text("OCORRÊNCIA DE ATENDIMENTO",105,y,{align:"center"});
+y+=10;
+
+doc.setFontSize(11);
+doc.text(`Razão Social: ${o.loja.razaoSocial}`,15,y); y+=7;
+doc.text(`CNPJ: ${o.loja.cnpj}`,15,y); y+=7;
+doc.text(`Loja: ${o.rede}`,15,y); y+=7;
+doc.text(`Cidade: ${o.loja.cidade}`,15,y); y+=7;
+doc.text(`Data da Ocorrência: ${o.data?formatarData(o.data):"-"}`,15,y); y+=7;
+doc.text(`Agência: ${o.agencia}`,15,y); y+=7;
+
+let catsPdf=categoriasDaOcorrencia(o);
+if(catsPdf.length===1){
+doc.text(`Categoria: ${catsPdf[0].categoria}${catsPdf[0].produto?" - "+catsPdf[0].produto:""}`,15,y); y+=10;
+}else{
+doc.text("Categorias:",15,y); y+=7;
+catsPdf.forEach(c=>{
+doc.text(`• ${c.categoria}${c.produto?" - "+c.produto:""}`,15,y); y+=6;
+});
+y+=3;
+}
+
+function bloco(titulo,texto){
+doc.setFontSize(11);
+doc.setFont(undefined,'bold');
+doc.text(titulo,15,y); y+=7;
+doc.setFont(undefined,'normal');
+let linhas=doc.splitTextToSize(texto||"-",180);
+doc.text(linhas,15,y);
+y+=linhas.length*6+6;
+if(y>260){doc.addPage();y=15;}
+}
+
+bloco("Motivo da Reclamação:",o.motivo);
+bloco("Observação:",o.observacao);
+
+doc.setFont(undefined,'bold');
+doc.text("Fonte da Informação:",15,y); y+=7;
+doc.setFont(undefined,'normal');
+doc.text(`Vendedor: ${o.vendedor}`,15,y); y+=6;
+(o.fontesExtras||[]).forEach(nome=>{
+doc.text(nome,15,y); y+=6;
+});
+
+y+=4;
+if(y>270){doc.addPage();y=15;}
+doc.setDrawColor(220,220,220);
+doc.line(15,y,195,y);
+y+=8;
+
+doc.setFontSize(9);
+doc.setTextColor(120);
+doc.text(`Criado em: ${o.criadoEm?new Date(o.criadoEm).toLocaleString('pt-BR'):"-"}`,15,y); y+=6;
+if(o.editadoEm){
+doc.text(`Editado em: ${new Date(o.editadoEm).toLocaleString('pt-BR')}`,15,y);
+}
+
+let nomeArquivo=`Ocorrencia_${o.loja.razaoSocial.replace(/[^a-zA-Z0-9]/g,"_")}_${(o.loja.cnpj||"").replace(/[^a-zA-Z0-9]/g,"")}.pdf`;
+abrirPdf(doc,nomeArquivo);
+}
+
+/* =========================================================
+   AGENDA
+   ========================================================= */
+function renderAgendaMenu(){
+redeSelectAgenda.innerHTML="";
+clientes.forEach((c,i)=>{
+redeSelectAgenda.innerHTML+=`<option value="${i}">${c.nome}</option>`;
+});
+dataAgenda.value="";
+obsAgenda.value="";
+renderListaAgenda();
+}
+
+function salvarAgendamento(){
+let rede=clientes[redeSelectAgenda.value];
+if(!rede){mostrarModalPedidoPro("Cadastre uma rede primeiro.","⚠️");return;}
+if(!dataAgenda.value){mostrarModalPedidoPro("Selecione a data do atendimento.","⚠️");return;}
+
+agendamentos.push({
+rede:rede.nome,
+data:dataAgenda.value,
+observacao:obsAgenda.value.trim(),
+criadoEm:new Date().toISOString()
+});
+
+save();
+dataAgenda.value="";
+obsAgenda.value="";
+renderListaAgenda();
+}
+
+async function excluirAgendamento(i){
+if(!await confirmarPedidoPro("Excluir esse agendamento?")) return;
+agendamentos.splice(i,1);
+save();
+renderListaAgenda();
+}
+
+const DIAS_SEMANA=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+function diaDaSemana(data){
+if(!data) return "";
+let [ano,mes,dia]=data.split("-").map(Number);
+let d=new Date(ano,mes-1,dia);
+return DIAS_SEMANA[d.getDay()];
+}
+
+function renderListaAgenda(){
+let hoje=new Date().toISOString().split("T")[0];
+
+let lista=agendamentos
+.map((a,i)=>({a,i}))
+.sort((x,y)=>x.a.data.localeCompare(y.a.data));
+
+listaAgenda.innerHTML="";
+
+if(lista.length===0){
+listaAgenda.innerHTML="<div class='card'>Nenhum atendimento agendado ainda.</div>";
+return;
+}
+
+lista.forEach(({a,i})=>{
+let passado=a.data<hoje;
+listaAgenda.innerHTML+=`
+<div class="card" style="${passado?'opacity:0.55;':''}">
+<b>${formatarData(a.data)}</b> (${diaDaSemana(a.data)})<br>
+🏬 ${a.rede}<br>
+${a.observacao?a.observacao+"<br>":""}
+<button class="pequeno excluir" onclick="excluirAgendamento(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+/* =========================================================
+   SOMA DE CX E VOLUME
+   ========================================================= */
+let itensVolume=[];
+let volumeRedeAtual=null;
+let volumeDataAtual=null;
+let volumeEditIndex=null;
+
+function renderVolumeMenu(){
+show("volumeMenu");
+listaRedesVolume.innerHTML="";
+
+if(clientes.length===0){
+listaRedesVolume.innerHTML="<div class='card'>Nenhuma rede cadastrada ainda.</div>";
+return;
+}
+
+clientes.forEach(c=>{
+let total=simuladosVolume.filter(s=>s.rede===c.nome).length;
+listaRedesVolume.innerHTML+=`
+<div class="card" onclick="verVolumeRede('${c.nome.replace(/'/g,"\\'")}')">
+<b>${c.nome}</b><br>
+${total} simulado(s) salvo(s)
+</div>`;
+});
+}
+
+function abrirVolumeSetup(){
+if(clientes.length===0){
+mostrarModalPedidoPro("Cadastre uma rede primeiro.","⚠️");
+show("redes");
+return;
+}
+
+redeSelectVolume.innerHTML="";
+clientes.forEach((c,i)=>{
+redeSelectVolume.innerHTML+=`<option value="${i}">${c.nome}</option>`;
+});
+
+dataVolume.value=new Date().toISOString().split("T")[0];
+show("volumeSetup");
+}
+
+function confirmarVolumeSetup(){
+let rede=clientes[redeSelectVolume.value];
+if(!rede){mostrarModalPedidoPro("Selecione a rede.","⚠️");return;}
+if(!dataVolume.value){mostrarModalPedidoPro("Selecione a data do simulado.","⚠️");return;}
+
+volumeRedeAtual=rede.nome;
+volumeDataAtual=dataVolume.value;
+itensVolume=[];
+volumeEditIndex=null;
+
+infoVolume.innerText=`${rede.nome} | ${formatarData(volumeDataAtual)}`;
+volumeQtdCaixas.value="";
+popularCategoriaVolume();
+renderListaItensVolume();
+show("somaVolume");
+}
+
+function popularCategoriaVolume(){
+volumeCategoriaSelect.innerHTML="";
+gruposUnicos().forEach(g=>{
+volumeCategoriaSelect.innerHTML+=`<option value="${g}">${g}</option>`;
+});
+onChangeVolumeCategoria();
+}
+
+function onChangeVolumeCategoria(){
+let grupo=volumeCategoriaSelect.value;
+
+volumeProdutoSelect.innerHTML="";
+produtos.forEach((p,i)=>{
+if(p.grupo===grupo){
+volumeProdutoSelect.innerHTML+=`<option value="${i}">${p.descricao}</option>`;
+}
+});
+
+onChangeVolumeProduto();
+atualizarSubtotalCategoriaVolume();
+}
+
+// Soma, em tempo real, tudo que já foi digitado nessa categoria (os sabores já
+// adicionados + o que está sendo digitado agora), e mostra quanto falta pra
+// fechar o próximo palete — igual ao quadro grande do Pedido
+function atualizarSubtotalCategoriaVolume(){
+let grupo=volumeCategoriaSelect.value;
+let porPalete=buscarCaixasPorPaleteCategoria(grupo);
+
+if(!grupo || !porPalete){
+subtotalCategoriaVolume.innerHTML="";
+return;
+}
+
+let cxCategoria=0;
+itensVolume.forEach(it=>{
+if(it.grupo===grupo) cxCategoria+=it.qtd;
+});
+
+let qtdDigitada=parseInt(volumeQtdCaixas.value,10)||0;
+cxCategoria+=qtdDigitada;
+
+let h=`${grupo}<br>${porPalete} cx fecham 1 palete<br>${cxCategoria} cx = ${(cxCategoria/porPalete).toFixed(2)} paletes`;
+
+if(cxCategoria>0){
+let resto=cxCategoria-Math.floor(cxCategoria/porPalete+1e-9)*porPalete;
+if(resto<1e-9){
+h+=`<br>Fecha exato ✅`;
+}else{
+h+=`<br>Faltam ${Math.ceil(porPalete-resto-1e-9)} cx pra fechar o próximo palete`;
+}
+}
+
+subtotalCategoriaVolume.innerHTML=h;
+}
+
+function onChangeVolumeProduto(){
+onChangeVolumeProdutoBase();
+}
+
+function onChangeVolumeProdutoBase(){
+let grupo=volumeCategoriaSelect.value;
+let idx=volumeProdutoSelect.value;
+let produto=produtos[idx];
+
+if(!produto){
+volumeSemDados.classList.add("hidden");
+return;
+}
+
+let kg=kgEfetivo(produto.descricao,grupo);
+let palete=caixasPorPaleteEfetivo(produto.descricao,grupo);
+
+if(!kg || !palete){
+volumeSemDados.classList.remove("hidden");
+volumeSemDados.innerHTML=`⚠️ Esse produto (nem a categoria) ainda não tem peso bruto da caixa e/ou quantidade de caixas por palete cadastrados. Vá em Cadastro de Produtos e preencha antes de adicionar.`;
+}else{
+volumeSemDados.classList.add("hidden");
+}
+}
+
+function adicionarItemVolume(){
+let grupo=volumeCategoriaSelect.value;
+let idx=volumeProdutoSelect.value;
+let produto=produtos[idx];
+let qtd=parseInt(volumeQtdCaixas.value,10)||0;
+
+if(!produto){mostrarModalPedidoPro("Selecione um produto.","⚠️");return;}
+if(qtd<=0){mostrarModalPedidoPro("Informe a quantidade de caixas.","⚠️");return;}
+
+let kg=kgEfetivo(produto.descricao,grupo);
+let palete=caixasPorPaleteEfetivo(produto.descricao,grupo);
+let m3=m3Efetivo(produto.descricao,grupo);
+
+if(!kg || !palete){
+mostrarModalPedidoPro("Esse produto (nem a categoria) tem peso bruto e/ou quantidade por palete cadastrados. Cadastre em Cadastro de Produtos antes de continuar.","⚠️");
+return;
+}
+
+itensVolume.push({grupo,descricao:produto.descricao,qtd,kg,palete,m3});
+volumeQtdCaixas.value="";
+renderListaItensVolume();
+atualizarSubtotalCategoriaVolume();
+}
+
+function removerItemVolume(i){
+itensVolume.splice(i,1);
+renderListaItensVolume();
+atualizarSubtotalCategoriaVolume();
+}
+
+async function limparVolume(){
+if(itensVolume.length===0) return;
+if(!await confirmarPedidoPro("Limpar todos os itens da soma?")) return;
+itensVolume=[];
+renderListaItensVolume();
+atualizarSubtotalCategoriaVolume();
+}
+
+function calcularTotaisVolume(itens){
+let totalCx=0,totalKg=0,totalPaletes=0,totalM3=0,algumSemM3=false;
+itens.forEach(it=>{
+totalCx+=it.qtd;
+totalKg+=it.qtd*it.kg;
+totalPaletes+=it.qtd/it.palete;
+if(it.m3){
+totalM3+=it.qtd*it.m3;
+}else{
+algumSemM3=true;
+}
+});
+return {totalCx,totalKg,totalPaletes,totalM3,algumSemM3};
+}
+
+function renderListaItensVolume(){
+listaItensVolume.innerHTML="";
+
+itensVolume.forEach((it,i)=>{
+let pesoItem=it.qtd*it.kg;
+let paletesItem=it.qtd/it.palete;
+let m3Item=it.m3?it.qtd*it.m3:null;
+
+listaItensVolume.innerHTML+=`
+<div class="card">
+${it.descricao} (${it.grupo})<br>
+📦 ${it.qtd} cx<br>
+⚖️ Bruto: ${pesoItem.toFixed(2)} kg<br>
+🚚 ${paletesItem.toFixed(2)} paletes<br>
+${m3Item!=null?`📐 ${m3Item.toFixed(3)} m³<br>`:""}
+<button onclick="removerItemVolume(${i})">❌</button>
+</div>`;
+});
+
+if(itensVolume.length===0){
+totaisVolume.innerHTML="";
+return;
+}
+
+let t=calcularTotaisVolume(itensVolume);
+totaisVolume.innerHTML=`
+📦 Total de Caixas: ${t.totalCx}<br>
+⚖️ Peso Bruto Total: ${t.totalKg.toFixed(2)} kg<br>
+🚚 Total de Paletes: ${t.totalPaletes.toFixed(2)}<br>
+📐 Volume Total: ${t.totalM3.toFixed(3)} m³${t.algumSemM3?" (algum item sem m³ cadastrado)":""}<br><br>
+${htmlFaltamParaFechar(t.totalPaletes,t.totalKg,t.totalM3)}
+`;
+}
+
+function salvarSimuladoVolume(){
+if(itensVolume.length===0){mostrarModalPedidoPro("Adicione ao menos um item.","⚠️");return;}
+
+let t=calcularTotaisVolume(itensVolume);
+
+if(volumeEditIndex!==null){
+let original=simuladosVolume[volumeEditIndex];
+simuladosVolume[volumeEditIndex]={
+rede:volumeRedeAtual,
+data:volumeDataAtual,
+itens:itensVolume.slice(),
+totalCx:t.totalCx,
+totalKg:t.totalKg,
+totalPaletes:t.totalPaletes,
+criadoEm:original.criadoEm,
+editadoEm:new Date().toISOString()
+};
+volumeEditIndex=null;
+}else{
+simuladosVolume.push({
+rede:volumeRedeAtual,
+data:volumeDataAtual,
+itens:itensVolume.slice(),
+totalCx:t.totalCx,
+totalKg:t.totalKg,
+totalPaletes:t.totalPaletes,
+criadoEm:new Date().toISOString()
+});
+}
+
+save();
+mostrarModalPedidoPro("Simulado salvo!","💾");
+show("volumeMenu");
+}
+
+function editarSimuladoVolume(i){
+let s=simuladosVolume[i];
+volumeEditIndex=i;
+volumeRedeAtual=s.rede;
+volumeDataAtual=s.data;
+itensVolume=JSON.parse(JSON.stringify(s.itens));
+
+infoVolume.innerText=`${s.rede} | ${formatarData(s.data)} (editando)`;
+popularCategoriaVolume();
+renderListaItensVolume();
+show("somaVolume");
+}
+
+function gerarTextoVolumeDados(s){
+let d=montarDivisaoCarga(s.itens);
+let t=d.t;
+
+let texto=`SIMULADO DE CARGA\n`;
+texto+=`Rede: ${s.rede}\n`;
+texto+=`Data: ${formatarData(s.data)}\n\n`;
+
+texto+=`TOTAL DO PEDIDO\n`;
+texto+=`Caixas: ${t.totalCx}\n`;
+texto+=`Peso Bruto: ${t.totalKg.toFixed(2)} kg\n`;
+texto+=`Paletes: ${t.totalPaletes.toFixed(2)}\n`;
+texto+=`Volume: ${t.totalM3.toFixed(3)} m³${t.algumSemM3?" (algum item sem m³ cadastrado)":""}\n\n`;
+
+texto+=`DIVISÃO DE CARGA\n`;
+texto+=`Sugestão: ${d.sugestao}\n`;
+texto+=`${d.vazioTxt}\n`;
+
+d.cargas.forEach(c=>{
+texto+=`\n🚛 ${c.titulo.toUpperCase()}\n`;
+texto+=`Paletes: ${c.paletes.toFixed(2)} / ${c.capPaletes} (${c.pctPaletes.toFixed(1)}%)\n`;
+texto+=`Peso Bruto: ${c.peso.toFixed(2)} / ${c.capKg.toFixed(0)} kg (${c.pctPeso.toFixed(1)}%)\n`;
+texto+=`Volume: ${c.m3.toFixed(3)} / ${c.capM3} m³ (${c.pctM3.toFixed(1)}%)\n`;
+texto+=`Caixas: ${c.totalCaixas}\n`;
+c.linhas.forEach(l=>{
+texto+=`• ${l.descricao} — ${l.caixas} cx (${l.paletes.toFixed(2)} paletes)\n`;
+});
+});
+
+return texto.trim();
+}
+
+function gerarTextoVolume(){
+if(itensVolume.length===0){mostrarModalPedidoPro("Adicione ao menos um item.","⚠️");return;}
+let dadosTemp={rede:volumeRedeAtual,data:volumeDataAtual,itens:itensVolume};
+copiarTexto(gerarTextoVolumeDados(dadosTemp));
+}
+
+function gerarPdfVolume(s){
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let d=montarDivisaoCarga(s.itens);
+let t=d.t;
+let y=15;
+
+function garantirEspaco(altura){
+if(y+altura>280){
+doc.addPage();
+y=20;
+}
+}
+
+function escrever(texto,negrito,x,tamanho){
+doc.setFont(undefined,negrito?'bold':'normal');
+doc.setFontSize(tamanho||11);
+let linhas=doc.splitTextToSize(texto,180-((x||15)-15));
+garantirEspaco(linhas.length*6);
+doc.text(linhas,x||15,y);
+y+=linhas.length*6;
+}
+
+doc.setFontSize(14);
+doc.setFont(undefined,'bold');
+doc.text("SIMULADO DE CARGA",105,y,{align:"center"});
+y+=10;
+
+escrever(`Rede: ${s.rede}`,false);
+escrever(`Data: ${formatarData(s.data)}`,false);
+y+=4;
+
+escrever("TOTAL DO PEDIDO",true);
+escrever(`Caixas: ${t.totalCx}    Peso Bruto: ${t.totalKg.toFixed(2)} kg`,false);
+escrever(`Paletes: ${t.totalPaletes.toFixed(2)}    Volume: ${t.totalM3.toFixed(3)} m³${t.algumSemM3?" (algum item sem m³ cadastrado)":""}`,false);
+y+=4;
+
+escrever("DIVISÃO DE CARGA",true);
+escrever(`Sugestão: ${d.sugestao}`,false);
+escrever(d.vazioTxt,false);
+
+d.cargas.forEach(c=>{
+garantirEspaco(40);
+y+=3;
+doc.setDrawColor(200,200,200);
+doc.line(15,y,195,y);
+y+=8;
+
+escrever(c.titulo,true,15,12);
+escrever(`Paletes: ${c.paletes.toFixed(2)} / ${c.capPaletes} (${c.pctPaletes.toFixed(1)}%)    Caixas: ${c.totalCaixas}`,false);
+escrever(`Peso Bruto: ${c.peso.toFixed(2)} / ${c.capKg.toFixed(0)} kg (${c.pctPeso.toFixed(1)}%)`,false);
+escrever(`Volume: ${c.m3.toFixed(3)} / ${c.capM3} m³ (${c.pctM3.toFixed(1)}%)`,false);
+y+=2;
+c.linhas.forEach(l=>{
+escrever(`• ${l.descricao} — ${l.caixas} cx (${l.paletes.toFixed(2)} paletes)`,false,20,10);
+});
+});
+
+y+=6;
+garantirEspaco(12);
+doc.setFontSize(9);
+doc.setFont(undefined,'normal');
+doc.setTextColor(120);
+doc.text(`Operador: ${operadorAtual()}`,15,y);
+
+let nomeArquivo=`Simulado_${s.rede.replace(/[^a-zA-Z0-9]/g,"_")}_${s.data}.pdf`;
+abrirPdf(doc,nomeArquivo);
+}
+
+function gerarPdfVolumeAtual(){
+if(itensVolume.length===0){mostrarModalPedidoPro("Adicione ao menos um item.","⚠️");return;}
+gerarPdfVolume({rede:volumeRedeAtual,data:volumeDataAtual,itens:itensVolume});
+}
+
+function verVolumeRede(nomeRede){
+volumeRedeAtual=nomeRede;
+volumeRedeSalvosNome.innerText=`Simulados de Carga — ${nomeRede}`;
+show("volumeRedeSalvos");
+renderListaSimuladosVolume();
+}
+
+function renderListaSimuladosVolume(){
+let lista=simuladosVolume
+.map((s,i)=>({s,i}))
+.filter(x=>x.s.rede===volumeRedeAtual)
+.reverse();
+
+listaSimuladosVolume.innerHTML="";
+
+if(lista.length===0){
+listaSimuladosVolume.innerHTML="<div class='card'>Nenhum simulado salvo ainda.</div>";
+return;
+}
+
+lista.forEach(({s,i})=>{
+listaSimuladosVolume.innerHTML+=`
+<div class="card">
+<b>${formatarData(s.data)}</b><br>
+📦 ${s.totalCx} cx | ⚖️ ${s.totalKg.toFixed(2)} kg | 🚚 ${s.totalPaletes.toFixed(2)} paletes<br>
+<button class="pequeno" onclick="copiarTexto(gerarTextoVolumeDados(simuladosVolume[${i}]))">📲 Texto</button>
+<button class="pequeno" onclick="gerarPdfVolume(simuladosVolume[${i}])">📄 PDF</button>
+<button class="pequeno editar" onclick="editarSimuladoVolume(${i})">✏️ Editar</button>
+<button class="pequeno excluir" onclick="excluirSimuladoVolume(${i})">❌ Excluir</button>
+</div>`;
+});
+}
+
+async function excluirSimuladoVolume(i){
+if(!await confirmarPedidoPro("Excluir esse simulado de carga?")) return;
+simuladosVolume.splice(i,1);
+save();
+renderListaSimuladosVolume();
+}
+
+/* =========================================================
+   DIVISÃO DE CARGA (Carreta / Bitruck / Truck)
+   ========================================================= */
+const VEICULOS={
+Carreta:{pallets:28,kg:30000,m3:90},
+Bitruck:{pallets:18,kg:17000,m3:70},
+Truck:{pallets:16,kg:13000,m3:55}
+};
+
+// Em tempo real: situação do pedido em relação a cada veículo, considerando
+// paletes, peso e volume — o que fechar primeiro é o "fator limitante"
+function htmlFaltamParaFechar(paletes,kg,m3){
+if(!(paletes>0 || kg>0 || m3>0)) return "";
+
+function bloco(nome,v,icone){
+let fracPal=v.pallets>0?paletes/v.pallets:0;
+let fracKg=v.kg>0?kg/v.kg:0;
+let fracM3=v.m3>0?m3/v.m3:0;
+let frac=Math.max(fracPal,fracKg,fracM3);
+
+let fechados=Math.floor(frac+1e-9);
+let resto=frac-fechados;
+if(1-resto<0.005){ fechados+=1; resto=0; }
+
+let dimensao = frac===fracKg ? "peso" : (frac===fracM3 ? "volume" : "paletes");
+let txtFechados=fechados===0?"nenhum fechado":(fechados===1?"1 fechado":`${fechados} fechados`);
+
+let h=`${icone} <b>${nome} (${v.pallets} paletes / ${v.kg.toLocaleString('pt-BR')} kg / ${v.m3} m³): ${txtFechados}</b><br>`;
+h+=`Carga digitada atualmente: ${paletes.toFixed(2)} paletes, ${kg.toFixed(2)} kg, ${m3.toFixed(3)} m³<br>`;
+h+=`Fator limitante: ${dimensao}<br>`;
+
+if(resto<0.005){
+h+=`Falta para fechar: 0.00 ✅ (fecha exato)`;
+}else{
+let faltaFrac=1-resto;
+if(dimensao==="peso") h+=`Falta para fechar: ${(v.kg*faltaFrac).toFixed(2)} kg`;
+else if(dimensao==="volume") h+=`Falta para fechar: ${(v.m3*faltaFrac).toFixed(3)} m³`;
+else h+=`Falta para fechar: ${(v.pallets*faltaFrac).toFixed(2)} paletes`;
+
+// "Sobrando" só aparece se já fechou pelo menos um veículo desse tipo
+if(fechados>0){
+if(dimensao==="peso") h+=`<br>Sobrando: ${(v.kg*resto).toFixed(2)} kg`;
+else if(dimensao==="volume") h+=`<br>Sobrando: ${(v.m3*resto).toFixed(3)} m³`;
+else h+=`<br>Sobrando: ${(v.pallets*resto).toFixed(2)} paletes`;
+}
+}
+return h;
+}
+
+return bloco("Truck",VEICULOS.Truck,"🚛")+"<br><br>"+bloco("Bitruck",VEICULOS.Bitruck,"🚚")+"<br><br>"+bloco("Carreta",VEICULOS.Carreta,"🚛");
+}
+
+// Quantos veículos de cada tipo, no mínimo, podem ser necessários — olhando
+// as 3 dimensões (não só paletes, já que peso ou volume podem ser o limite)
+function limiteVeiculo(v,paletes,kg,m3){
+return Math.max(
+Math.ceil((paletes/v.pallets)-1e-9),
+Math.ceil((kg/v.kg)-1e-9),
+Math.ceil((m3/v.m3)-1e-9)
+)+1;
+}
+
+// Escolhe a combinação de carretas/bitrucks/trucks que deixa MENOS espaço
+// vazio (somando a sobra proporcional nas 3 dimensões), com empate por menos veículos
+function escolherVeiculos(paletes,kg,m3){
+let melhor=null;
+let maxCar=limiteVeiculo(VEICULOS.Carreta,paletes,kg,m3);
+let maxBit=limiteVeiculo(VEICULOS.Bitruck,paletes,kg,m3);
+let maxTru=limiteVeiculo(VEICULOS.Truck,paletes,kg,m3);
+
+for(let car=0;car<=maxCar;car++){
+for(let bit=0;bit<=maxBit;bit++){
+for(let tru=0;tru<=maxTru;tru++){
+if(car+bit+tru===0) continue;
+let capPal=car*VEICULOS.Carreta.pallets+bit*VEICULOS.Bitruck.pallets+tru*VEICULOS.Truck.pallets;
+let capKg=car*VEICULOS.Carreta.kg+bit*VEICULOS.Bitruck.kg+tru*VEICULOS.Truck.kg;
+let capM3=car*VEICULOS.Carreta.m3+bit*VEICULOS.Bitruck.m3+tru*VEICULOS.Truck.m3;
+if(capPal+1e-9<paletes || capKg+1e-6<kg || capM3+1e-6<m3) continue;
+
+let vazioPal=capPal-paletes;
+let vazioKg=capKg-kg;
+let vazioM3=capM3-m3;
+let desperdicio=(capPal>0?vazioPal/capPal:0)+(capKg>0?vazioKg/capKg:0)+(capM3>0?vazioM3/capM3:0);
+let n=car+bit+tru;
+
+// Prioridade: menos veículos primeiro (menos viagens/custo); entre combinações
+// com o mesmo número de veículos, a que deixa menos espaço vazio no total
+if(!melhor || n<melhor.n-1e-9 || (Math.abs(n-melhor.n)<1e-9 && desperdicio<melhor.desperdicio-1e-9)){
+melhor={carretas:car,bitrucks:bit,trucks:tru,capPal,capKg,capM3,vazioPal,vazioKg,vazioM3,desperdicio,n};
+}
+}
+}
+}
+return melhor;
+}
+
+// Junta o mesmo produto que foi adicionado mais de uma vez
+function agruparItensCarga(itens){
+let mapa={};
+let ordem=[];
+itens.forEach(it=>{
+let chave=it.grupo+"||"+it.descricao;
+if(!mapa[chave]){
+mapa[chave]={descricao:it.descricao,grupo:it.grupo,qtd:0,kg:it.kg,palete:it.palete,m3:it.m3||0};
+ordem.push(chave);
+}
+mapa[chave].qtd+=it.qtd;
+});
+return ordem.map(k=>mapa[k]);
+}
+
+// Divide os produtos entre as cargas: cada carga leva um pouco de tudo, em proporção
+// à capacidade dela (paletes, peso e volume parecidos), respeitando os 3 limites
+// de cada veículo e priorizando paletes inteiros do mesmo produto
+function dividirCarga(itens,veiculos){
+let produtos=agruparItensCarga(itens);
+
+let totalPaletes=0,totalPeso=0,totalM3=0;
+produtos.forEach(p=>{
+totalPaletes+=p.qtd/p.palete;
+totalPeso+=p.qtd*p.kg;
+totalM3+=p.qtd*(p.m3||0);
+});
+
+let somaCapPal=veiculos.reduce((s,v)=>s+v.pallets,0);
+let cargas=veiculos.map(v=>({
+nome:v.nome,
+capPaletes:v.pallets,
+capKg:v.kg,
+capM3:v.m3,
+paletes:0,peso:0,m3:0,
+itens:{},
+paletesAlvo:totalPaletes*v.pallets/somaCapPal,
+pesoAlvo:totalPeso*v.pallets/somaCapPal,
+m3Alvo:totalM3*v.pallets/somaCapPal
+}));
+
+function cabe(carga,uPal,uPeso,uM3){
+return carga.paletes+uPal<=carga.capPaletes+1e-9
+&& carga.peso+uPeso<=carga.capKg+1e-6
+&& carga.m3+uM3<=carga.capM3+1e-6;
+}
+
+function adicionar(carga,prod,caixas){
+if(caixas<=0) return;
+let chave=prod.grupo+"||"+prod.descricao;
+if(!carga.itens[chave]){
+carga.itens[chave]={descricao:prod.descricao,grupo:prod.grupo,caixas:0,palete:prod.palete};
+}
+carga.itens[chave].caixas+=caixas;
+carga.paletes+=caixas/prod.palete;
+carga.peso+=caixas*prod.kg;
+carga.m3+=caixas*(prod.m3||0);
+}
+
+function pontuacao(carga,paletes,peso,m3){
+let a=carga.paletesAlvo>0?(carga.paletes+paletes)/carga.paletesAlvo:0;
+let b=carga.pesoAlvo>0?(carga.peso+peso)/carga.pesoAlvo:0;
+let c=carga.m3Alvo>0?(carga.m3+m3)/carga.m3Alvo:0;
+return (a+b+c)/3;
+}
+
+function colocar(prod,caixas){
+let uPal=caixas/prod.palete;
+let uPeso=caixas*prod.kg;
+let uM3=caixas*(prod.m3||0);
+
+let candidatas=cargas.filter(c=>cabe(c,uPal,uPeso,uM3));
+if(candidatas.length>0){
+let melhor=candidatas.reduce((m,c)=>pontuacao(c,uPal,uPeso,uM3)<pontuacao(m,uPal,uPeso,uM3)?c:m);
+adicionar(melhor,prod,caixas);
+return;
+}
+
+// Não coube inteiro em nenhuma carga: fatia por caixas nas folgas que sobraram,
+// respeitando paletes, peso e volume ao mesmo tempo. Tenta em 3 ordens diferentes
+// (por folga de palete, depois de peso, depois de volume) antes de desistir —
+// uma única ordem pode deixar sobra presa mesmo havendo espaço de verdade em outra carga.
+let restante=caixas;
+
+function tentarOrdem(chaveFolga){
+let ordenadas=cargas.slice().sort((a,b)=>chaveFolga(b)-chaveFolga(a));
+ordenadas.forEach(c=>{
+if(restante<=0) return;
+let porPalete=Math.floor((c.capPaletes-c.paletes)*prod.palete+1e-9);
+let porPeso=prod.kg>0?Math.floor((c.capKg-c.peso)/prod.kg+1e-9):Infinity;
+let porM3=prod.m3>0?Math.floor((c.capM3-c.m3)/prod.m3+1e-9):Infinity;
+let cabem=Math.max(0,Math.min(porPalete,porPeso,porM3));
+let levar=Math.min(restante,cabem);
+if(levar>0){
+adicionar(c,prod,levar);
+restante-=levar;
+}
+});
+}
+
+tentarOrdem(c=>c.capPaletes-c.paletes);
+if(restante>0) tentarOrdem(c=>c.capKg-c.peso);
+if(restante>0) tentarOrdem(c=>c.capM3-c.m3);
+
+// Último recurso extremo (não deveria acontecer): ainda sobrou depois de tentar
+// as 3 ordens. Coloca na carga com mais folga de peso, por ser a dimensão mais
+// sensível a estourar — mesmo correndo o risco de passar um pouco da capacidade.
+if(restante>0){
+let c=cargas.slice().sort((a,b)=>(b.capKg-b.peso)-(a.capKg-a.peso))[0];
+adicionar(c,prod,restante);
+}
+}
+
+let ordenados=produtos.slice().sort((a,b)=>b.qtd*b.kg-a.qtd*a.kg);
+ordenados.forEach(p=>{
+let inteiros=Math.floor(p.qtd/p.palete);
+let resto=p.qtd-inteiros*p.palete;
+for(let i=0;i<inteiros;i++) colocar(p,p.palete);
+if(resto>0) colocar(p,resto);
+});
+
+// Verificação final: o cálculo por fatias pode, em casos raros, deixar uma carga
+// levemente acima de algum limite. Aqui corrige, movendo caixas pra outra carga
+// que tenha espaço nas 3 dimensões — garantindo que nenhuma carga saia da tela estourada.
+function estourou(c){
+return c.paletes>c.capPaletes+1e-6 || c.peso>c.capKg+1e-6 || c.m3>c.capM3+1e-6;
+}
+
+let produtosPorChave={};
+produtos.forEach(p=>{ produtosPorChave[p.grupo+"||"+p.descricao]=p; });
+
+cargas.forEach(cOrigem=>{
+if(!estourou(cOrigem)) return;
+
+Object.keys(cOrigem.itens).forEach(chave=>{
+if(!estourou(cOrigem)) return;
+let item=cOrigem.itens[chave];
+let prod=produtosPorChave[chave];
+if(!prod) return;
+
+cargas.forEach(cDestino=>{
+if(cDestino===cOrigem || !estourou(cOrigem) || item.caixas<=0) return;
+
+while(estourou(cOrigem) && item.caixas>0){
+let porPalete=Math.floor((cDestino.capPaletes-cDestino.paletes)*prod.palete+1e-9);
+let porPeso=prod.kg>0?Math.floor((cDestino.capKg-cDestino.peso)/prod.kg+1e-9):Infinity;
+let porM3=prod.m3>0?Math.floor((cDestino.capM3-cDestino.m3)/prod.m3+1e-9):Infinity;
+let cabem=Math.max(0,Math.min(porPalete,porPeso,porM3,item.caixas));
+if(cabem<=0) break;
+
+item.caixas-=cabem;
+cOrigem.paletes-=cabem/prod.palete;
+cOrigem.peso-=cabem*prod.kg;
+cOrigem.m3-=cabem*(prod.m3||0);
+
+adicionar(cDestino,prod,cabem);
+}
+});
+});
+});
+
+cargas.forEach(c=>{
+Object.keys(c.itens).forEach(chave=>{
+if(c.itens[chave].caixas<=0) delete c.itens[chave];
+});
+});
+
+return {cargas,totalPaletes,totalPeso,totalM3};
+}
+
+// Monta tudo da divisão de carga (usado pela tela, pelo texto e pelo PDF)
+function montarDivisaoCarga(itens){
+let t=calcularTotaisVolume(itens);
+let escolha=escolherVeiculos(t.totalPaletes,t.totalKg,t.totalM3);
+
+let veiculos=[];
+for(let i=0;i<escolha.carretas;i++) veiculos.push({nome:"Carreta",...VEICULOS.Carreta});
+for(let i=0;i<escolha.bitrucks;i++) veiculos.push({nome:"Bitruck",...VEICULOS.Bitruck});
+for(let i=0;i<escolha.trucks;i++) veiculos.push({nome:"Truck",...VEICULOS.Truck});
+
+let resultado=dividirCarga(itens,veiculos);
+
+// Em casos raros (produto único com peso por palete que não combina com nenhum
+// veículo da combinação), nem o reequilíbrio dentro do dividirCarga resolve.
+// Aqui o app tenta de novo com mais 1 Truck, até no máximo 5 vezes.
+function algumaCargaEstourada(cargas){
+return cargas.some(c=>c.paletes>c.capPaletes+1e-6 || c.peso>c.capKg+1e-6 || c.m3>c.capM3+1e-6);
+}
+let tentativas=0;
+while(algumaCargaEstourada(resultado.cargas) && tentativas<5){
+veiculos.push({nome:"Truck",...VEICULOS.Truck});
+resultado=dividirCarga(itens,veiculos);
+tentativas++;
+}
+
+let nCarretas=veiculos.filter(v=>v.nome==="Carreta").length;
+let nBitrucks=veiculos.filter(v=>v.nome==="Bitruck").length;
+let nTrucks=veiculos.filter(v=>v.nome==="Truck").length;
+
+let partes=[];
+if(nCarretas>0) partes.push(nCarretas===1?"1 carreta":`${nCarretas} carretas`);
+if(nBitrucks>0) partes.push(nBitrucks===1?"1 bitruck":`${nBitrucks} bitrucks`);
+if(nTrucks>0) partes.push(nTrucks===1?"1 truck":`${nTrucks} trucks`);
+
+let cargas=resultado.cargas.map((c,idx)=>{
+let linhas=Object.values(c.itens).map(it=>({
+descricao:it.descricao,
+caixas:it.caixas,
+paletes:it.caixas/it.palete
+}));
+return {
+titulo:`Pedido ${idx+1} — ${c.nome}`,
+capPaletes:c.capPaletes,
+capKg:c.capKg,
+capM3:c.capM3,
+paletes:c.paletes,
+pctPaletes:c.paletes/c.capPaletes*100,
+peso:c.peso,
+pctPeso:c.peso/c.capKg*100,
+m3:c.m3,
+pctM3:c.capM3>0?c.m3/c.capM3*100:0,
+totalCaixas:linhas.reduce((s,l)=>s+l.caixas,0),
+linhas
+};
+});
+
+let capPalFinal=veiculos.reduce((s,v)=>s+v.pallets,0);
+let capKgFinal=veiculos.reduce((s,v)=>s+v.kg,0);
+let capM3Final=veiculos.reduce((s,v)=>s+v.m3,0);
+let vazioPalFinal=capPalFinal-t.totalPaletes;
+let vazioKgFinal=capKgFinal-t.totalKg;
+let vazioM3Final=capM3Final-t.totalM3;
+
+let vazioTxt = (vazioPalFinal<0.005 && vazioKgFinal<0.5 && vazioM3Final<0.005)
+? "Encaixe exato, sem espaço vazio."
+: `Espaço vazio: ${vazioPalFinal.toFixed(2)} paletes, ${vazioKgFinal.toFixed(2)} kg, ${vazioM3Final.toFixed(2)} m³`;
+
+return {
+t,
+escolha,
+sugestao:partes.join(" + "),
+vazioTxt,
+cargas
+};
+}
+
+function abrirDivisaoCarga(){
+if(itensVolume.length===0){
+mostrarModalPedidoPro("Adicione ao menos um item antes de dividir a carga.","⚠️");
+return;
+}
+
+let d=montarDivisaoCarga(itensVolume);
+
+divisaoResumo.innerHTML=`
+🚚 Total do pedido: <b>${d.t.totalPaletes.toFixed(2)} paletes</b> | ⚖️ ${d.t.totalKg.toFixed(2)} kg (bruto) | 📐 ${d.t.totalM3.toFixed(3)} m³<br>
+✅ Sugestão: <b>${d.sugestao}</b><br>
+${d.vazioTxt}
+`;
+
+divisaoListaCargas.innerHTML="";
+d.cargas.forEach(c=>{
+let linhasHtml="";
+c.linhas.forEach(l=>{
+linhasHtml+=`<div class="card">${l.descricao} — ${l.caixas} cx (${l.paletes.toFixed(2)} paletes)</div>`;
+});
+
+divisaoListaCargas.innerHTML+=`
+<h4>${c.titulo}</h4>
+<div class="card">
+🚚 Paletes: ${c.paletes.toFixed(2)} / ${c.capPaletes} (${c.pctPaletes.toFixed(1)}%)<br>
+⚖️ Peso bruto: ${c.peso.toFixed(2)} / ${c.capKg.toLocaleString('pt-BR')} kg (${c.pctPeso.toFixed(1)}%)<br>
+📐 Volume: ${c.m3.toFixed(3)} / ${c.capM3} m³ (${c.pctM3.toFixed(1)}%)<br>
+📦 Total de caixas: ${c.totalCaixas}
+</div>
+${linhasHtml}`;
+});
+
+show("divisaoCarga");
+}
+
+// Divisão de carga do Pedido: mesma lógica de veículos do Simulador, mas
+// agrupando por CATEGORIA (não por produto) e mostrando os valores em dinheiro
+function abrirDivisaoCargaPedido(){
+if(pedidoAtual.length===0){
+mostrarModalPedidoPro("Adicione ao menos um item antes de dividir a carga.","⚠️");
+return;
+}
+
+let itens=pedidoAtual.map(p=>({
+grupo:p.categoria,
+descricao:p.produto||p.categoria,
+qtd:p.cx,
+kg:kgEfetivo(p.produto,p.categoria)||0,
+palete:caixasPorPaleteEfetivo(p.produto,p.categoria)||0,
+m3:m3Efetivo(p.produto,p.categoria)||0
+}));
+
+if(itens.some(it=>!it.kg || !it.palete)){
+mostrarModalPedidoPro("Algum item do pedido não tem peso bruto e/ou quantidade por palete cadastrados. Cadastre em Cadastro de Produtos antes de dividir a carga.","⚠️");
+return;
+}
+
+let totalPaletes=0,totalKg=0,totalM3=0;
+itens.forEach(it=>{
+totalPaletes+=it.qtd/it.palete;
+totalKg+=it.qtd*it.kg;
+totalM3+=it.qtd*(it.m3||0);
+});
+
+let escolha=escolherVeiculos(totalPaletes,totalKg,totalM3);
+
+let veiculos=[];
+for(let i=0;i<escolha.carretas;i++) veiculos.push({nome:"Carreta",...VEICULOS.Carreta});
+for(let i=0;i<escolha.bitrucks;i++) veiculos.push({nome:"Bitruck",...VEICULOS.Bitruck});
+for(let i=0;i<escolha.trucks;i++) veiculos.push({nome:"Truck",...VEICULOS.Truck});
+
+let resultado=dividirCarga(itens,veiculos);
+
+// Mesma escalada do Simulador: se sobrar alguma carga estourada mesmo depois
+// do reequilíbrio interno, tenta de novo com mais 1 truck
+function algumaCargaEstourada(cargas){
+return cargas.some(c=>c.paletes>c.capPaletes+1e-6 || c.peso>c.capKg+1e-6 || c.m3>c.capM3+1e-6);
+}
+let tentativas=0;
+while(algumaCargaEstourada(resultado.cargas) && tentativas<5){
+veiculos.push({nome:"Truck",...VEICULOS.Truck});
+resultado=dividirCarga(itens,veiculos);
+tentativas++;
+}
+
+let nCarretas=veiculos.filter(v=>v.nome==="Carreta").length;
+let nBitrucks=veiculos.filter(v=>v.nome==="Bitruck").length;
+let nTrucks=veiculos.filter(v=>v.nome==="Truck").length;
+let partes=[];
+if(nCarretas>0) partes.push(nCarretas===1?"1 carreta":`${nCarretas} carretas`);
+if(nBitrucks>0) partes.push(nBitrucks===1?"1 bitruck":`${nBitrucks} bitrucks`);
+if(nTrucks>0) partes.push(nTrucks===1?"1 truck":`${nTrucks} trucks`);
+
+divisaoPedidoResumo.innerHTML=`
+🚚 Total do pedido: <b>${totalPaletes.toFixed(2)} paletes</b> | ⚖️ ${totalKg.toFixed(2)} kg (bruto) | 📐 ${totalM3.toFixed(3)} m³<br>
+✅ Sugestão: <b>${partes.join(" + ")}</b>
+`;
+
+divisaoPedidoLista.innerHTML="";
+resultado.cargas.forEach((c,idx)=>{
+// Agrupa os itens dessa carga por categoria (um produto pode ter ido inteiro
+// ou só uma parte pra essa carga — aqui soma tudo daquela categoria que caiu aqui)
+let caixasPorCategoria={};
+Object.values(c.itens).forEach(it=>{
+caixasPorCategoria[it.grupo]=(caixasPorCategoria[it.grupo]||0)+it.caixas;
+});
+
+let blocosHtml="";
+Object.keys(caixasPorCategoria).forEach(categoria=>{
+let caixasNaCarga=caixasPorCategoria[categoria];
+let itemRef=pedidoAtual.find(p=>p.categoria===categoria);
+let val=itemRef.val,bon=itemRef.bon,un=itemRef.un;
+let precoComBonif=val/(1+bon/100);
+let cxBon=caixasNaCarga*(bon/100);
+let valorTotal=caixasNaCarga*un*val;
+let diferenca=valorTotal*(bon/100);
+
+let saboresHtml="";
+Object.values(c.itens).forEach(it=>{
+if(it.grupo===categoria){
+saboresHtml+=`<div class="card">${it.descricao} — ${it.caixas} cx</div>`;
+}
+});
+
+blocosHtml+=`
+<h4>${categoria}</h4>
+<div class="card">
+📦 Total de Caixas: ${caixasNaCarga}<br>
+🎁 Caixas Bonificadas: ${cxBon.toFixed(2)}<br>
+💲 Preço em Nota: R$ ${val.toFixed(2)}<br>
+🔥 Preço c/ Bonificação:<br>
+➡️ Real: R$ ${precoComBonif.toFixed(4)}<br>
+➡️ Arredondado: R$ ${precoComBonif.toFixed(2)}<br>
+📊 Bonificação: ${bon}%<br>
+💰 Total: R$ ${valorTotal.toFixed(2)}<br>
+📉 Diferença: R$ ${diferenca.toFixed(2)}
+</div>
+${saboresHtml}`;
+});
+
+divisaoPedidoLista.innerHTML+=`
+<div class="total" style="margin-top:20px;">
+${c.nome==="Truck"?"🚛":"🚚"} Pedido ${idx+1} — ${c.nome}<br>
+Paletes: ${c.paletes.toFixed(2)} / ${c.capPaletes} (${(c.paletes/c.capPaletes*100).toFixed(1)}%)<br>
+Peso bruto: ${c.peso.toFixed(2)} / ${c.capKg.toLocaleString('pt-BR')} kg<br>
+Volume: ${c.m3.toFixed(3)} / ${c.capM3} m³
+</div>
+${blocosHtml}`;
+});
+
+show("divisaoCargaPedido");
+}
+
+/* =========================================================
+   PWA - registro do service worker (funciona só quando hospedado via https)
+   ========================================================= */
+if("serviceWorker" in navigator){
+window.addEventListener("load",()=>{
+navigator.serviceWorker.register("sw.js").catch(()=>{});
+});
+}
+
+</script>
+
+</body>
+</html>
